@@ -5,14 +5,13 @@ class IMError(Exception):
     def __str__ (self):
         return self.message
     
+class BadRequestError(IMError):
+    pass
 
 class NoParameterError(IMError):
     pass
 
 class InvalidParameterError(IMError):
-    pass
-
-class ProtocolNotFoundError(IMError):
     pass
 
 class IllegalStateError(IMError):

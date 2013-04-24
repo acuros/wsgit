@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
-from imdjango.network.server import Server
+from imdjango.network.server import IMServer
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        Server.start_server()
+        IMServer.start_server(*args)
