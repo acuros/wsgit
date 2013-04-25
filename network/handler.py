@@ -57,6 +57,7 @@ class IMRequestHandler(BaseRequestHandler):
 class IMRequest:
     def __init__(self, handler, obj):
         self.obj = obj
+        self.method = "MOBILE"
         self.META = dict(REQUEST_METHOD = "MOBILE",
                          PATH_INFO = self.get_parsed_url().path,
                          QUERY_STRING = self.get_parsed_url().query,

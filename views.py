@@ -42,6 +42,7 @@ class IMView(object):
             else:
                 raise UnsupportedMethodError("The method '%s' is not valid method for this request."%(self.request.method))
 
+        self.request = request
         args = call_preprocessor() or list(args)
         return call_proper_request_processor(args, kwargs)
 
