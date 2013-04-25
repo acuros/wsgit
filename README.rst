@@ -1,6 +1,5 @@
-====================
 Overview
-====================
+========
 
 imdjango is django plugin for making mobile application server(with bson protocol) immediately by reusing your django web application.
 If you use imdjango, you can make your django web server as mobile application server in TCP(Not HTTP). 
@@ -9,8 +8,7 @@ What it means, you can reuse already made your all of web application server sou
 What you have to do to make mobile server is only installing imdjango and write view.
 
 INSTALL
-============
-
+=======
 #. Download this project on your djangoproject directory 
 #. Add 'imdjango' to your ``INSTALLED_APPS`` in ``setings.py`` file::
 
@@ -34,7 +32,7 @@ Tutorial
 
 
 Server Code
-___
+___________
 
 ``urls.py``::
     url(r'^book/', include('book.urls')),
@@ -76,7 +74,6 @@ ___
     def book_list(request):
         books = Book.objects.all()
         if request.GET.has_key('author_name'):
-            print request.GET['author_name']
             try:
                 author = Author.objects.get(name=request.GET['author_name'])
             except Author.DoesNotExist:
@@ -87,7 +84,7 @@ ___
 
 
 Client Test
-___
+___________
 ::
     >>> s = socket(AF_INET, SOCK_STREAM)
     >>> s.connect(('localhost', 9338))
