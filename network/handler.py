@@ -1,4 +1,4 @@
-import bson, threading, logging
+import  threading, logging
 from urlparse import urlparse, parse_qs
 from SocketServer import BaseRequestHandler
 
@@ -19,37 +19,62 @@ class IMRequestHandler(BaseRequestHandler):
             try:
                 obj = self.connection.recvobj()
             except Exception, e:
-                logger.error('Bad Request. Not bson protocol.')
+                logger.debug('Bad Request. Not bson protocol.')
             if obj == None:
                 break
-            request = IMRequest(obj)
-            thread = threading.Thread(target=self.reply_response, args=[request]).start()
+            request = IMRequest(self, obj)
+            self.start_view(request)
 
     def finish(self):
         self.connection.close()
 
+    def start_view(self, request):
+        thread = threading.Thread(target=self.reply_response, args=[request])
+        thread.start()
+
     def reply_response(self, request):
         view, args, kwargs = self.get_resolver_match(request)
-        response = view(request, *args, **kwargs)
+        try:
+            response = view(request, *args, **kwargs)
+        except IMError, e:
+            logger.info('Request : %s\n%s: %s\n\n'%(request, e.__class__.__name__, str(e)))
+            self.connection.sendobj({'status':{'code':e.__class__.__name__, 'reason':str(e)}})
+            response = dict(status=dict(code=e.__class__.__name__, reason=str(e)))
+        else:
+            response.update(dict(status=dict(code='OK', reason='OK')))
         self.connection.sendobj(response)
 
     def get_resolver_match(self, request):
         urlconf = settings.ROOT_URLCONF
         urlresolvers.set_urlconf(urlconf)
-        resolver = urlresolvers.RegexURLResolver(r'^/', urlconf)
+        MOBILE_URL_PREFIX = getattr(settings, 'MOBILE_URL_PREFIX', '^/')
+        resolver = urlresolvers.RegexURLResolver(MOBILE_URL_PREFIX, urlconf)
         return resolver.resolve(request.META['PATH_INFO'])
     
 
 
 class IMRequest:
-    def __init__(self, obj):
+    def __init__(self, handler, obj):
         self.obj = obj
-        parsed_url = self.get_parsed_url()
-        self.META = dict(
-                            PATH_INFO = parsed_url.path,
-                            QUERY_STRING = parsed_url.query
-                        )
-        self.GET = parse_qs(parsed_url.query)
+        self.META = dict(REQUEST_METHOD = "MOBILE",
+                         PATH_INFO = self.get_parsed_url().path,
+                         QUERY_STRING = self.get_parsed_url().query,
+                         REMOTE_ADDR = handler.client_address[0]
+                         )
+        self.GET = self.get_GET()
+        self.POST = self.get_POST()
+
+    def get_GET(self):
+        parsed_qs = parse_qs(self.get_parsed_url().query)
+        for key, value in parsed_qs.copy().iteritems():
+            if len(value) == 1:
+                parsed_qs[key] = value[0]
+        return parsed_qs
+
+    def get_POST(self):
+        parameters = self.obj.copy()
+        del parameters['url']
+        return parameters
 
     def get_url(self):
         try:
@@ -58,7 +83,10 @@ class IMRequest:
             raise NoParameterError('url')
 
     def get_parsed_url(self):
+        if hasattr(self, '_parsed_url'):
+            return self._parsed_url
         try:
-            return urlparse(self.get_url())
+            self._parsed_url = urlparse(self.get_url())
+            return self._parsed_url
         except Exception:
             raise BadRequestError('Bad URL')
