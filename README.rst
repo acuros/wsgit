@@ -1,3 +1,4 @@
+
 Overview
 ========
 
@@ -21,7 +22,7 @@ START SERVER
 ============
 ::
 
-		$python manage.py runimdjango [host] [port]
+        $python manage.py runimdjango [host] [port]
 
 Default host is 0.0.0.0, port is 9338.
 You can set default host, port with ``MOBILE_HOST``, ``MOBILE_PORT`` in ``settings.py``.
@@ -34,13 +35,15 @@ Tutorial
 Server Code
 ___________
 
-``urls.py``::
+urls.py ::
+
     url(r'^book/', include('book.urls')),
 
-``book/urls.py``::
+book/urls.py ::
+
     url('list/$', 'book.views.book_list'),
 
-``book/models.py``::
+book/models.py ::
 
     from django.db import models
 
@@ -54,7 +57,7 @@ ___________
         author = models.ForeignKey(Author)
         price = models.FloatField()
 
-``book/views.py``::
+book/views.py ::
 
     from django.core.paginator import Paginator, InvalidPage, EmptyPage
     from imdjango.utils import serialize_page
@@ -85,7 +88,9 @@ ___________
 
 Client Test
 ___________
+
 ::
+
     >>> s = socket(AF_INET, SOCK_STREAM)
     >>> s.connect(('localhost', 9338))
     >>> s.sendobj({'url':'/book/list/?author_name=Acuros+Kim'})
