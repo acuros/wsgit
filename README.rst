@@ -32,35 +32,18 @@ Tutorial
 ========
 
 
-Server Code
-___________
+Server Code (function based view version)
+_________________________________________
 
 urls.py ::
 
-    url(r'^book/', include('book.urls')),
-
-book/urls.py ::
-
-    url('list/$', 'book.views.book_list'),
-
-book/models.py ::
-
-    from django.db import models
-
-    class Author(models.Model):
-        name = models.CharField(max_length=50)
-
-    class Book(models.Model):
-        PAGE_LIMIT = 20
-
-        name = models.CharField(max_length=100)
-        author = models.ForeignKey(Author)
-        price = models.FloatField()
+    url(r'^book/list/$', 'book.views.book_list'),
 
 book/views.py ::
 
     from django.core.paginator import Paginator, InvalidPage, EmptyPage
     from imdjango.utils import serialize_page
+    from imdjango.exceptions import InvalidParameterError
     from book.models import Book, Author
 
     def paginate(queryset, page):
@@ -84,6 +67,52 @@ book/views.py ::
             books = books.filter(author=author)
         book_page = paginate(books, request.GET.get('page', 1))
         return dict(book_page=serialize_page(book_page))
+
+
+Server Code (class based view version)
+______________________________________
+
+urls.py ::
+
+    url(r'^book/list/$', BookList()),
+
+book/views.py ::
+
+    from django.core.paginator import Paginator, InvalidPage, EmptyPage
+    from django.shortcuts import render
+    from imdjango.views import IMView
+    from imdjango.utils import serialize_page
+    from imdjango.exceptions import InvalidParameterError
+    from book.models import Book, Author
+
+    class BookList(IMView):
+        def common_process(self, request):
+            books = Book.objects.all()
+            if request.GET.has_key('author_name'):
+                try:
+                    author = Author.objects.get(name=request.GET['author_name'])
+                except Author.DoesNotExist:
+                    raise InvalidParameterError('Author not exist')
+                books = books.filter(author=author)
+            return self.paginate(books, request.GET.get('page', 1))
+
+        def process_get_request(self, request, book_page):#If you want to support web page
+            return render(...)
+
+        def process_mobile_request(self, request, book_page):
+            return dict(book_page=serialize_page(book_page))
+
+
+        def paginate(self, queryset, page):
+            paginator = Paginator(queryset, 20)
+            try:
+                page = int(page)
+            except ValueError:
+                page = 1
+            try:
+                return paginator.page(page)
+            except (EmptyPage, InvalidPage):
+                return paginator.page(paginator.num_pages)
 
 
 Client Test
