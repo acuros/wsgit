@@ -6,7 +6,7 @@ from SocketServer import BaseRequestHandler
 from django.conf import settings
 from django.core import urlresolvers
 
-from imdjango.exceptions import NoParameterError, BadRequestError
+from imdjango.exceptions import IMError, NoParameterError, BadRequestError
 
 logger = logging.getLogger('imdjango')
 
