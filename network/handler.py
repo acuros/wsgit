@@ -1,11 +1,12 @@
-import  threading, logging
+import threading
+import logging
 from urlparse import urlparse, parse_qs
 from SocketServer import BaseRequestHandler
 
 from django.conf import settings
 from django.core import urlresolvers
 
-from imdjango.exceptions import *
+from imdjango.exceptions import NoParameterError, BadRequestError
 
 logger = logging.getLogger('imdjango')
 
@@ -18,7 +19,7 @@ class IMRequestHandler(BaseRequestHandler):
         while True:
             try:
                 obj = self.connection.recvobj()
-            except Exception, e:
+            except Exception:
                 logger.debug('Bad Request. Not bson protocol.')
             if obj == None:
                 break
