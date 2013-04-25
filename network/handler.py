@@ -11,23 +11,35 @@ logger = logging.getLogger('imdjango')
 
 class IMRequestHandler(BaseRequestHandler):
     def setup(self):
+        self.connection = self.request
         self.server.connected_handlers.append(self)
 
     def handle(self):
-        try:
-            obj = self.request.recvobj()
-        except Exception, e:
-            logger.error('Bad Request. Not bson protocol.')
+        while True:
+            try:
+                obj = self.connection.recvobj()
+            except Exception, e:
+                logger.error('Bad Request. Not bson protocol.')
+            if obj == None:
+                break
+            request = IMRequest(obj)
+            thread = threading.Thread(target=self.reply_response, args=[request]).start()
 
-        request = IMRequest(obj)
+    def finish(self):
+        self.connection.close()
+
+    def reply_response(self, request):
         view, args, kwargs = self.get_resolver_match(request)
-        threading.Thread(target=view, args=[request]+list(args), kwargs=kwargs).start()
+        response = view(request, *args, **kwargs)
+        self.connection.sendobj(response)
 
     def get_resolver_match(self, request):
         urlconf = settings.ROOT_URLCONF
         urlresolvers.set_urlconf(urlconf)
         resolver = urlresolvers.RegexURLResolver(r'^/', urlconf)
         return resolver.resolve(request.META['PATH_INFO'])
+    
+
 
 class IMRequest:
     def __init__(self, obj):
