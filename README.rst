@@ -1,5 +1,5 @@
 WSGIT (WSGI on TCP)
-~~~
+~~~~~~~~~~~~~~~~~~~
 
 WSGIT is an adaptor which make run WSGI applications on ``TCP`` not HTTP.
 It make fake WSGI Request from TCP to run WSGI application.
