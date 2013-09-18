@@ -1,7 +1,7 @@
 #-*-coding:utf8-*-
 '''Tests for Environ object'''
 
-import uniitest
+import unittest
 from wsgit import Environ
 
 def environ(request):
@@ -24,3 +24,11 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(environ({'url':'/'})['PATH_INFO'], '/')
         self.assertEqual(environ({'url': '/foo/bar/?foo=bar'}['PATH_INFO'], 
                                  '/foo/bar/'))
+
+    def test_query_string(self):
+        self.assertEqual(environ({}).get('QUERY_STRING'), None)
+        self.assertEqual(environ({'url':'/'}).get('QUERY_STRING'), '')
+        self.assertEqual(environ({'url': '/foo/bar/?foo=bar'}['PATH_INFO'], 
+                                 'foo=bar'))
+        self.assertEqual(environ({'url': '/foo/bar/?foo=bar&foo2=bar2'}['PATH_INFO'], 
+                                 'foo=bar&foo2=bar2'))
