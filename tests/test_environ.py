@@ -2,17 +2,16 @@
 '''Tests for Environ object'''
 
 import unittest
-from wsgit import Environ, Request
+from wsgit.request import Environ
 
 def environ(request_parameters, meta={}):
-    return Environ({'parameters':request_parameters, 'meta':meta).get_dict()
+    return Environ({'parameters':request_parameters, 'meta':meta}).get_dict()
 
 class TestEnviron(unittest.TestCase):
     def test_request_method(self):
         self.assertEqual(environ({})['REQUEST_METHOD'], 'MOBILE')
 
     def test_reqeust_uri(self):
-        request = 
         self.assertEqual(environ({})['REQUEST_URI'], None)
         self.assertEqual(environ({'uri':'/'})['REQUEST_URI'], '/')
         self.assertEqual(environ({'uri':'/foo/bar/'})['REQUEST_URI'],
