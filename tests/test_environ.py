@@ -2,7 +2,7 @@
 '''Tests for Environ object'''
 
 import unittest
-from wsgit.request import Environ
+from wsgit.wsgi import Environ
 
 def environ(request_parameters={}, meta={}):
     return Environ({'parameters':request_parameters, 'meta':meta}).get_dict()
