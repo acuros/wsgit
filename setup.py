@@ -19,6 +19,7 @@ setup(name='WSGIT',
       license='MIT License',
       author='Seungyeon Kim(Acuros)',
       author_email='acuroskr' '@' 'gmail.com',
+      install_requires = ['bson>=0.3.3'],
       classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

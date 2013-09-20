@@ -1,5 +1,5 @@
 import urlparse
-import json
+import json, bson
 
 class Environ(object):
     def __init__(self, request_dict):
@@ -52,4 +52,4 @@ class WSGIHandler(object):
         finally:
             if hasattr(app_iter, 'close'):
                 app_iter.close()
-        return json.dumps(self.result)
+        return bson.dumps(self.result)
