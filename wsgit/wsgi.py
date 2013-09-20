@@ -1,4 +1,5 @@
 import urlparse
+import json
 
 class Environ(object):
     def __init__(self, request_dict):
@@ -34,3 +35,21 @@ class Environ(object):
     
     def _get_remote_port(self):
         return self.meta.get('port')
+
+class WSGIHandler(object):
+    def __init__(self):
+        self.result = dict()
+
+    def _start_response(self, status, response_headers):
+        code, reason = status.split(' ')
+        self.result['status'] = dict(code=code, reason=reason)
+
+    def call_application(self, app, environ):
+        app_iter = app(environ, self._start_response)
+        try:
+            for item in app_iter:
+                self.result.update(json.loads(item))
+        finally:
+            if hasattr(app_iter, 'close'):
+                app_iter.close()
+        return json.dumps(self.result)
