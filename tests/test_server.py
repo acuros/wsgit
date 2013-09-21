@@ -8,7 +8,7 @@ from socket import socket, SOCK_STREAM, AF_INET
 class TestServer(unittest.TestCase):
     def test_server(self):
         bson.patch_socket()
-        server = Server.run_server(('127.0.0.1', 9338), app)
+        server, thread = Server.run_server(('127.0.0.1', 9338), app)
         conn = socket(AF_INET, SOCK_STREAM)
         conn.connect(('127.0.0.1', 9338))
         conn.sendobj({'url':'/'})
