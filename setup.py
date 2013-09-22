@@ -12,22 +12,27 @@ def readme():
 
 
 setup(name='WSGIT',
-      packages=['wand'],
-      version=VERSION,
-      description='WSGI Server on TCP',
-      long_description=readme(),
-      license='MIT License',
-      author='Seungyeon Kim(Acuros)',
-      author_email='acuroskr' '@' 'gmail.com',
-      install_requires = ['bson>=0.3.3'],
-      url='https://github.com/acuros/wsgi-tcp'
-      classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Topic :: Internet :: WWW/HTTP :: WSGI',
-        'Topic :: Internet :: WWW/HTTP :: WSGI :: Server',
-      ])
+    packages=['wsgit'],
+    version=VERSION,
+    description='WSGI Server on TCP',
+    long_description=readme(),
+    license='MIT License',
+    author='Seungyeon Kim(Acuros)',
+    author_email='acuroskr' '@' 'gmail.com',
+    install_requires = ['bson>=0.3.3'],
+    url='https://github.com/acuros/wsgi-tcp',
+    entry_points={
+        'console_scripts': [
+            'wsgit=wsgit.server:run'
+        ],
+    },
+    classifiers=[
+      'Development Status :: 2 - Pre-Alpha',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved :: MIT License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python :: 2.6',
+      'Programming Language :: Python :: 2.7',
+      'Topic :: Internet :: WWW/HTTP :: WSGI',
+      'Topic :: Internet :: WWW/HTTP :: WSGI :: Server',
+    ])
