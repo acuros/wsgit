@@ -50,7 +50,7 @@ class WSGITRequestHandler(BaseRequestHandler):
     def finish(self):
         self.conn.close()
 
-if __name__ == '__main__':
+def run():
     import sys, os, time
     sys.path.append(os.getcwd())
     if len(sys.argv) != 3:
@@ -66,3 +66,6 @@ if __name__ == '__main__':
             time.sleep(1)
     except KeyboardInterrupt:
         server.shutdown()
+
+if __name__ == '__main__':
+    run()

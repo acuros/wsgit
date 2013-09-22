@@ -20,6 +20,7 @@ setup(name='WSGIT',
       author='Seungyeon Kim(Acuros)',
       author_email='acuroskr' '@' 'gmail.com',
       install_requires = ['bson>=0.3.3'],
+      url='https://github.com/acuros/wsgi-tcp'
       classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
