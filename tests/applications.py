@@ -1,5 +1,8 @@
+from djangoproject.djangoproject.wsgi import application as django_application
 
-def application1(environ, start_response):
+def various_status_application(environ, start_response):
     import json
-    start_response('200 OK', [('Content-Type', 'application/json')])
+    status = environ.get('QUERY_STRING') or '200 OK'
+    start_response(status, [('Content-Type', 'application/json')])
+    
     yield '{}'

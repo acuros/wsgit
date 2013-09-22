@@ -60,7 +60,7 @@ class WSGIHandler(object):
         self.result = dict()
 
     def _start_response(self, status, response_headers):
-        code, reason = status.split(' ')
+        code, reason = status.split(' ')[0], ' '.join(status.split(' ')[1:])
         self.result['status'] = dict(code=code, reason=reason)
 
     def call_application(self, app, environ):

@@ -1,7 +1,7 @@
 import unittest
 import bson
 from wsgit.wsgi import WSGIHandler, Environ
-from tests.applications import application1 as app
+from tests.applications import various_status_application
 
 class TestWSGIHandler(unittest.TestCase):
     def test_call_application(self):
@@ -9,6 +9,15 @@ class TestWSGIHandler(unittest.TestCase):
                        parameters=dict(url='/'))
         environ = Environ(request)
         handler = WSGIHandler()
-        bson_binary = handler.call_application(app, environ.get_dict())
+        bson_binary = handler.call_application(various_status_application, environ.get_dict())
         self.assertEqual(dict(status=dict(reason='OK', code='200')),
+                         bson.loads(bson_binary))
+
+    def test_not_found_status(self):
+        request = dict(meta=dict(ip='127.0.0.1', port=19234), 
+                       parameters=dict(url='/?404 NOT FOUND'))
+        environ = Environ(request)
+        handler = WSGIHandler()
+        bson_binary = handler.call_application(various_status_application, environ.get_dict())
+        self.assertEqual(dict(status=dict(reason='NOT FOUND', code='404')),
                          bson.loads(bson_binary))
