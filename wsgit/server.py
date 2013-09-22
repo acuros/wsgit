@@ -32,11 +32,18 @@ class WSGITRequestHandler(BaseRequestHandler):
                 logger.debug('Bad Request. Not bson protocol.')
             if obj == None:
                 break
-            environ = Environ(obj)
+            environ = self._get_environ(obj)
             wsgi_handler = WSGIHandler()
             obj = wsgi_handler.call_application(self.server.app, 
                                                 environ.get_dict())
             self.conn.send(obj)
+
+    def _get_environ(self, obj):
+        obj.update(dict(server_name=self.conn.getsockname()[0],
+                        server_port=self.conn.getsockname()[1],
+                        remote_addr=self.client_address[0],
+                        remote_port=self.client_address[1]))
+        return Environ(obj)
 
 
     def finish(self):

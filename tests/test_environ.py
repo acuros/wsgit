@@ -42,6 +42,16 @@ class TestEnviron(unittest.TestCase):
         self.assertEqual(Environ({}).get_dict().get('REMOTE_PORT'), None)
         self.assertEqual(environ(meta={'port':10295})['REMOTE_PORT'], 10295)
 
+
+    def test_server_name(self):
+        self.assertEqual(Environ({}).get_dict().get('SERVER_NAME'), None)
+        self.assertEqual(environ(meta={'server_name':'10.20.30.40'})['SERVER_NAME'],
+                                 '10.20.30.40')
+
+    def test_server_port(self):
+        self.assertEqual(Environ({}).get_dict().get('SERVER_PORT'), None)
+        self.assertEqual(environ(meta={'server_port':9338})['SERVER_PORT'], 9338)
+
     def test_post_data(self):
         request_dict = {'url':'/', 'user_id':'13671', 'article_id':'5312'}
         env_dict = environ(request_dict)

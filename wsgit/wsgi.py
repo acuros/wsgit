@@ -12,7 +12,7 @@ class Environ(object):
             return self.environ
         environ = {}
         environ['REQUEST_METHOD'] = 'MOBILE'
-        for key in ('REQUEST_URI', 'PATH_INFO', 'QUERY_STRING', 'REMOTE_ADDR', 'REMOTE_PORT'):
+        for key in ('REQUEST_URI', 'PATH_INFO', 'QUERY_STRING', 'REMOTE_ADDR', 'REMOTE_PORT', 'SERVER_NAME', 'SERVER_PORT'):
             environ[key] = getattr(self, '_get_%s'%key.lower())()
         environ.update(self._get_wsgi_io_dict())
         self.environ = environ
@@ -37,6 +37,12 @@ class Environ(object):
     
     def _get_remote_port(self):
         return self.meta.get('port')
+
+    def _get_server_name(self):
+        return self.meta.get('server_name')
+
+    def _get_server_port(self):
+        return self.meta.get('server_port')
 
     def _get_wsgi_io_dict(self):
         parameters = self.request_parameters.copy()
