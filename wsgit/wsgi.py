@@ -67,8 +67,17 @@ class WSGIHandler(object):
         app_iter = app(environ, self._start_response)
         try:
             for item in app_iter:
-                self.result.update(json.loads(item))
+                self._update_result(item)
         finally:
             if hasattr(app_iter, 'close'):
                 app_iter.close()
         return bson.dumps(self.result)
+    
+    def _update_result(self, item):
+        try:
+            response = json.loads(item)
+        except ValueError:
+            self.result['no_json_response'] = \
+                    self.result.get('no_json_response','') + item
+        else:
+            self.result.update(response)
