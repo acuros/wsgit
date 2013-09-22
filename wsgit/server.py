@@ -54,7 +54,7 @@ def run():
     import sys, os, time
     sys.path.append(os.getcwd())
     if len(sys.argv) != 3:
-        print 'Usage : %s BIND_IP:PORT MODULENAME.APPLICATION_NAME'%sys.argv[0]
+        print 'Usage : %s ipaddr:port module_name.wsgi_application_name'%sys.argv[0]
         sys.exit(1)
     path = sys.argv[2].split('.')
     name = path[-1]
