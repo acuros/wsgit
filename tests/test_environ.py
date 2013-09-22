@@ -41,3 +41,12 @@ class TestEnviron(unittest.TestCase):
     def test_remote_port(self):
         self.assertEqual(Environ({}).get_dict().get('REMOTE_PORT'), None)
         self.assertEqual(environ(meta={'port':10295})['REMOTE_PORT'], 10295)
+
+    def test_post_data(self):
+        request_dict = {'url':'/', 'user_id':'13671', 'article_id':'5312'}
+        env_dict = environ(request_dict)
+        self.assertTrue(env_dict.has_key('wsgi.input'))
+        from urlparse import parse_qs
+        parsed_post = parse_qs(env_dict['wsgi.input'].read())
+        self.assertEqual(parsed_post, 
+                         {'article_id': ['5312'], 'user_id': ['13671']})

@@ -1,4 +1,5 @@
-import urlparse
+import urlparse, urllib
+from StringIO import StringIO
 import json, bson
 
 class Environ(object):
@@ -13,6 +14,7 @@ class Environ(object):
         environ['REQUEST_METHOD'] = 'MOBILE'
         for key in ('REQUEST_URI', 'PATH_INFO', 'QUERY_STRING', 'REMOTE_ADDR', 'REMOTE_PORT'):
             environ[key] = getattr(self, '_get_%s'%key.lower())()
+        environ.update(self._get_wsgi_io_dict())
         self.environ = environ
         return environ
 
@@ -35,6 +37,17 @@ class Environ(object):
     
     def _get_remote_port(self):
         return self.meta.get('port')
+
+    def _get_wsgi_io_dict(self):
+        parameters = self.request_parameters.copy()
+        if parameters.has_key('url'):
+            del parameters['url']
+        post_body = urllib.urlencode(parameters)
+        stream = StringIO()
+        stream.write(post_body)
+        stream.seek(0)
+        return {'wsgi.input':stream, 'wsgi.errors':StringIO(),
+                'wsgi.version':(1,0)}
 
 class WSGIHandler(object):
     def __init__(self):
