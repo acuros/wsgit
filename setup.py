@@ -12,14 +12,17 @@ def readme():
 
 
 setup(name='WSGIT',
-      packages=['wand'],
+      packages=['wsgit'],
       version=VERSION,
       description='WSGI Server on TCP',
       long_description=readme(),
       license='MIT License',
       author='Seungyeon Kim(Acuros)',
       author_email='acuroskr' '@' 'gmail.com',
-      install_requires=['bson>=0.3.3'],
+      install_requires=[
+          'bson>=0.3.3',
+          'OpenSSL',
+      ],
       classifiers=[
           'Development Status :: 2 - Pre-Alpha',
           'Intended Audience :: Developers',
