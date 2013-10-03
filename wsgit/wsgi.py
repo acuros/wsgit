@@ -1,8 +1,12 @@
-import urlparse, urllib
+import urlparse
+import urllib
 from StringIO import StringIO
-import json, bson
+import json
+import bson
+
 
 class Environ(object):
+
     def __init__(self, request_dict):
         self.request_parameters = request_dict.get('parameters', {})
         self.meta = request_dict.get('meta', {})
@@ -12,15 +16,16 @@ class Environ(object):
             return self.environ
         environ = {}
         environ['REQUEST_METHOD'] = 'MOBILE'
-        for key in ('REQUEST_URI', 'PATH_INFO', 'QUERY_STRING', 'REMOTE_ADDR', 'REMOTE_PORT', 'SERVER_NAME', 'SERVER_PORT'):
-            environ[key] = getattr(self, '_get_%s'%key.lower())()
+        for key in ('REQUEST_URI', 'PATH_INFO', 'QUERY_STRING', 'REMOTE_ADDR',
+                    'REMOTE_PORT', 'SERVER_NAME', 'SERVER_PORT'):
+            environ[key] = getattr(self, '_get_%s' % key.lower())()
         environ.update(self._get_wsgi_io_dict())
         self.environ = environ
         return environ
 
     def _get_request_uri(self):
         return self.request_parameters.get('url')
-    
+
     def _get_path_info(self):
         url = self.request_parameters.get('url')
         if url is not None:
@@ -31,10 +36,10 @@ class Environ(object):
         if url is not None:
             query = urlparse.urlparse(url).query
             return query
-    
+
     def _get_remote_addr(self):
         return self.meta.get('ip')
-    
+
     def _get_remote_port(self):
         return self.meta.get('port')
 
@@ -46,16 +51,18 @@ class Environ(object):
 
     def _get_wsgi_io_dict(self):
         parameters = self.request_parameters.copy()
-        if parameters.has_key('url'):
+        if 'url' in parameters:
             del parameters['url']
         post_body = urllib.urlencode(parameters)
         stream = StringIO()
         stream.write(post_body)
         stream.seek(0)
-        return {'wsgi.input':stream, 'wsgi.errors':StringIO(),
-                'wsgi.version':(1,0)}
+        return {'wsgi.input': stream, 'wsgi.errors': StringIO(),
+                'wsgi.version': (1, 0)}
+
 
 class WSGIHandler(object):
+
     def __init__(self):
         self.result = dict()
 
@@ -72,12 +79,12 @@ class WSGIHandler(object):
             if hasattr(app_iter, 'close'):
                 app_iter.close()
         return bson.dumps(self.result)
-    
+
     def _update_result(self, item):
         try:
             response = json.loads(item)
         except ValueError:
             self.result['no_json_response'] = \
-                    self.result.get('no_json_response','') + item
+                self.result.get('no_json_response', '') + item
         else:
             self.result.update(response)

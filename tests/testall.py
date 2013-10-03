@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import unittest
-import sys, os, glob
+import sys
+import os
+import glob
 
 test_root = os.path.dirname(os.path.abspath(__file__))
 test_files = glob.glob(os.path.join(test_root, 'test_*.py'))
@@ -17,6 +19,7 @@ if 'help' in sys.argv or '-h' in sys.argv:
     ''')
     sys.exit(0)
 suite = unittest.defaultTestLoader.loadTestsFromNames(test_names)
+
 
 def run():
     vlevel = 2 if '-v' in sys.argv else 0
