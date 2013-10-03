@@ -53,13 +53,14 @@ class WSGITRequestHandler(BaseRequestHandler):
     def finish(self):
         self.conn.close()
 
-if __name__ == '__main__':
+
+def run():
     import sys
     import os
     import time
     sys.path.append(os.getcwd())
     if len(sys.argv) != 3:
-        print 'Usage : %s BIND_IP:PORT MODULE.APPLICATION' % sys.argv[0]
+        print 'Usage : %s ipaddr:port module.application' % sys.argv[0]
         sys.exit(1)
     path = sys.argv[2].split('.')
     name = path[-1]
@@ -72,3 +73,6 @@ if __name__ == '__main__':
             time.sleep(1)
     except KeyboardInterrupt:
         server.shutdown()
+
+if __name__ == '__main__':
+    run()
