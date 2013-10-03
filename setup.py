@@ -19,9 +19,10 @@ setup(name='WSGIT',
       license='MIT License',
       author='Seungyeon Kim(Acuros)',
       author_email='acuroskr' '@' 'gmail.com',
-      test_require=[
-          'OpenSSL',
+      tests_require=[
+          'pyOpenSSL',
       ],
+      test_suite='tests',
       install_requires=[
           'bson>=0.3.3',
       ],
