@@ -1,6 +1,7 @@
 #!/usr/bin/python
-import threading
 import bson
+import ssl
+import threading
 from SocketServer import ThreadingMixIn, TCPServer, BaseRequestHandler
 
 from wsgi import WSGIHandler, Environ
@@ -8,15 +9,16 @@ from wsgi import WSGIHandler, Environ
 
 class Server(ThreadingMixIn, TCPServer):
 
-    def __init__(self, addr, handler, app):
+    def __init__(self, addr, handler, app, ssl=False):
         self.app = app
         self.connected_handlers = []
+        self._use_ssl = ssl
         TCPServer.__init__(self, addr, handler)
 
     @classmethod
-    def run_server(cls, addr, app):
+    def run_server(cls, addr, app, ssl=False):
         bson.patch_socket()
-        server = cls(addr, WSGITRequestHandler, app)
+        server = cls(addr, WSGITRequestHandler, app, ssl)
         thread = threading.Thread(target=server.serve_forever)
         thread.start()
         return server, thread
@@ -25,6 +27,12 @@ class Server(ThreadingMixIn, TCPServer):
 class WSGITRequestHandler(BaseRequestHandler):
 
     def setup(self):
+        if self.server._use_ssl:
+            self.request = ssl.wrap_socket(self.request,
+                                           keyfile='ssl.key',
+                                           certfile='ssl.crt',
+                                           server_side=True,
+                                           ssl_version=ssl.PROTOCOL_TLSv1)
         self.conn = self.request
         self.server.connected_handlers.append(self)
 
