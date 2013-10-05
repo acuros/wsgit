@@ -1,9 +1,17 @@
 WSGIT (WSGI on TCP)
 ~~~~~~~~~~~~~~~~~~~
 
+
+About
+_____
+
 WSGIT is a server which runs WSGI applications on ``TCP`` not ``HTTP`` so that helps you make server of non-http-clients(such as mobile application) with wsgi applications(like django or flask).
 It makes mock WSGI Request from TCP to run WSGI application.
 It receives json response from WSGI application and sends it as bson after adds some HTTP header information in dict.
+
+
+Examples
+________
 
 Django Example:
 
@@ -35,3 +43,20 @@ Request Example:
     >>> print s.recvobj()
     >>> {u'status': {u'reason': 'OK', u'code': '200'}, u'page': u'index'}
     >>> s.close()
+
+
+Changelog
+_________
+
+* 2013.10.05: **0.1.2**:
+
+    * Command ``wsgit`` supports ssl options ``--keyfile`` and ``--certfile``
+
+* 2013.10.03: **0.1.1**:
+
+    * Supports SSL
+
+* 2013.09.22: **0.1**:
+
+    * create mock environ to call wsgi application
+    * run server with command ``wsgit``
