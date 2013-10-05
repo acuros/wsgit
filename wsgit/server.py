@@ -9,16 +9,17 @@ from wsgi import WSGIHandler, Environ
 
 class Server(ThreadingMixIn, TCPServer):
 
-    def __init__(self, addr, handler, app, ssl=False):
+    def __init__(self, addr, handler, app, keyfile=None, certfile=None):
         self.app = app
         self.connected_handlers = []
-        self._use_ssl = ssl
+        self._keyfile = keyfile
+        self._certfile = certfile
         TCPServer.__init__(self, addr, handler)
 
     @classmethod
-    def run_server(cls, addr, app, ssl=False):
+    def run_server(cls, addr, app, keyfile=None, certfile=None):
         bson.patch_socket()
-        server = cls(addr, WSGITRequestHandler, app, ssl)
+        server = cls(addr, WSGITRequestHandler, app, keyfile, certfile)
         thread = threading.Thread(target=server.serve_forever)
         thread.start()
         return server, thread
@@ -27,10 +28,10 @@ class Server(ThreadingMixIn, TCPServer):
 class WSGITRequestHandler(BaseRequestHandler):
 
     def setup(self):
-        if self.server._use_ssl:
+        if self.server._keyfile:
             self.request = ssl.wrap_socket(self.request,
-                                           keyfile='ssl.key',
-                                           certfile='ssl.crt',
+                                           keyfile=self.server._keyfile,
+                                           certfile=self.server._certfile,
                                            server_side=True,
                                            ssl_version=ssl.PROTOCOL_TLSv1)
         self.conn = self.request
@@ -63,20 +64,35 @@ class WSGITRequestHandler(BaseRequestHandler):
 
 
 def run():
+    import argparse
     import sys
     import os
     import time
+    parser = argparse.ArgumentParser()
+    parser.add_argument('addr', metavar='ADDR',
+                        help='bind ip with port(ex: 0:9338)')
+    parser.add_argument('app', metavar='APP',
+                        help='application for run(ex: modulename.application)')
+    parser.add_argument('--keyfile', metavar='FILE')
+    parser.add_argument('--certfile', metavar='FILE')
+    args = parser.parse_args()
     sys.path.append(os.getcwd())
-    if len(sys.argv) != 3:
-        print 'Usage : %s ipaddr:port module.application' % sys.argv[0]
-        sys.exit(1)
-    path = sys.argv[2].split('.')
+    path = args.app.split('.')
     name = path[-1]
     module = __import__('.'.join(path[:-1]), fromlist=[name])
-    ip, port = sys.argv[1].split(':')
+    ip, port = args.addr.split(':')
+    if args.keyfile or args.certfile:
+        if not args.keyfile:
+            raise argparse.ArgumentError('--keyfile', '--keyfile omitted')
+        if not args.certfile:
+            raise argparse.ArgumentError('--certfile', '--certfile omitted')
+
     try:
-        server, thread = Server.run_server(
-            (ip, int(port)), getattr(module, name))
+        server, thread = Server.run_server((ip, int(port)),
+                                           getattr(module, name),
+                                           args.keyfile,
+                                           args.certfile
+                                           )
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
