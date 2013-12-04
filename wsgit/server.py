@@ -54,8 +54,8 @@ class WSGITRequestHandler(BaseRequestHandler):
     def _get_environ(self, obj):
         meta = (dict(server_name=self.conn.getsockname()[0],
                      server_port=self.conn.getsockname()[1],
-                     remote_addr=self.client_address[0],
-                     remote_port=self.client_address[1]))
+                     ip=self.client_address[0],
+                     port=self.client_address[1]))
         parameters = obj
         return Environ(dict(meta=meta, parameters=parameters))
 
