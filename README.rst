@@ -28,7 +28,7 @@ Run Example:
 
 .. code-block:: console
 
-    $ python wsgit 0:9338 djangoproject.wsgi.application
+    $ wsgit 0:9338 djangoproject.wsgi.application
 
 Request Example:
 

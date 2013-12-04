@@ -26,6 +26,11 @@ setup(name='WSGIT',
       install_requires=[
           'bson>=0.3.3',
       ],
+      entry_points={
+          'console_scripts': [
+              'wsgit=wsgit.server:run'
+          ]
+      },
       classifiers=[
           'Development Status :: 2 - Pre-Alpha',
           'Intended Audience :: Developers',
