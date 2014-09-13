@@ -12,7 +12,7 @@ class TestServer(unittest.TestCase):
 
     def test_server(self):
         bson.patch_socket()
-        port = random.randint(2000, 50000)
+        port = random.randint(2000, 65535)
         server, thread = Server.run_server(('127.0.0.1', port), app)
         conn = socket(AF_INET, SOCK_STREAM)
         conn.connect(('127.0.0.1', port))
@@ -51,13 +51,14 @@ class TestServer(unittest.TestCase):
 
         make_keys()
         bson.patch_socket()
-        server, thread = Server.run_server(('127.0.0.1', 9339), app, ssl=True)
+        port = random.randint(2000, 65535)
+        server, thread = Server.run_server(('127.0.0.1', port), app, ssl=True)
         conn = socket(AF_INET, SOCK_STREAM)
         conn = ssl.wrap_socket(conn,
                                keyfile='ssl.key',
                                certfile='ssl.crt',
                                ssl_version=ssl.PROTOCOL_TLSv1)
-        conn.connect(('127.0.0.1', 9339))
+        conn.connect(('127.0.0.1', port))
         conn.sendobj({'url': '/'})
         self.assertEqual(conn.recvobj(), dict(
             status=dict(reason='OK', code='200')))
