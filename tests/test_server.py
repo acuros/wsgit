@@ -52,7 +52,10 @@ class TestServer(unittest.TestCase):
         make_keys()
         bson.patch_socket()
         port = random.randint(2000, 65535)
-        server, thread = Server.run_server(('127.0.0.1', port), app, ssl=True)
+        server, thread = Server.run_server(('127.0.0.1', port), app,
+                                           keyfile='ssl.key',
+                                           certfile='ssl.crt'
+                                           )
         conn = socket(AF_INET, SOCK_STREAM)
         conn = ssl.wrap_socket(conn,
                                keyfile='ssl.key',

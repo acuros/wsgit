@@ -17,7 +17,7 @@ setup(name='WSGIT',
       description='WSGI Server on TCP',
       long_description=readme(),
       license='MIT License',
-      author='Seungyeon Kim(Acuros)',
+      author='Seungyeon Joshua Kim(Acuros)',
       author_email='acuroskr' '@' 'gmail.com',
       tests_require=[
           'pyOpenSSL',
@@ -26,6 +26,11 @@ setup(name='WSGIT',
       install_requires=[
           'bson>=0.3.3',
       ],
+      entry_points={
+          'console_scripts': [
+              'wsgit=wsgit.server:run'
+          ]
+      },
       classifiers=[
           'Development Status :: 2 - Pre-Alpha',
           'Intended Audience :: Developers',
