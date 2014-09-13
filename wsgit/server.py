@@ -37,7 +37,12 @@ class WSGITRequestHandler(BaseRequestHandler):
                                            ssl_version=ssl.PROTOCOL_TLSv1)
         self.conn = self.request
         self.server.connected_handlers.append(self)
-        self.meta = dict()
+        self.meta = dict(
+            server_name=self.conn.getsockname()[0],
+            server_port=self.conn.getsockname()[1],
+            remote_addr=self.client_address[0],
+            remote_port=self.client_address[1]
+        )
 
     def handle(self):
         while True:
