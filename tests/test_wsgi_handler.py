@@ -1,12 +1,9 @@
-import random
 import bson
 import unittest
-from socket import socket, SOCK_STREAM, AF_INET
-from wsgit.server import Server
+from wsgit.server import WSGITRequestHandler
 from wsgit.wsgi import WSGIHandler, Environ
 from tests.applications import various_status_application,\
     no_json_response_application
-from tests.applications import various_status_application as app
 
 
 class TestWSGIHandler(unittest.TestCase):
@@ -60,14 +57,31 @@ class TestWSGIHandler(unittest.TestCase):
         )
 
     def test_http_header(self):
-        bson.patch_socket()
-        port = random.randint(2000, 50000)
-        server, thread = Server.run_server(('127.0.0.1', port), app)
-        conn = socket(AF_INET, SOCK_STREAM)
-        conn.connect(('127.0.0.1', port))
-        conn.sendobj({'url': '/', '__headers__': dict(USER_AGENT='iPhone')})
-        self.assertEqual(
-            server.connected_handlers[0].meta['HTTP_USER_AGENT'],
-            'iPhone'
-        )
-        server.shutdown()
+        request = {'url': '/', '__headers__': dict(USER_AGENT='iPhone')}
+        request = MockRequest(bson.dumps(request))
+        handler = WSGITRequestHandler(request, ('1.2.3.4', 12345), MockServer())
+        self.assertEqual(handler.meta['HTTP_USER_AGENT'], 'iPhone')
+
+
+class MockServer(object):
+    _use_ssl = False
+    connected_handlers = []
+
+    @staticmethod
+    def app(*args):
+        yield '{}'
+
+
+class MockRequest(object):
+    def __init__(self, request_bytes):
+        self.request_bytes = request_bytes
+
+    def recvobj(self):
+        self.recvobj = lambda: None
+        return bson.loads(self.request_bytes)
+
+    def send(self, obj):
+        pass
+
+    def close(self):
+        pass
