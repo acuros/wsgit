@@ -14,14 +14,19 @@ class Environ(object):
     def get_dict(self):
         if hasattr(self, 'environ'):
             return self.environ
-        environ = {}
-        environ['REQUEST_METHOD'] = 'MOBILE'
+        environ = dict()
         for key in ('REQUEST_URI', 'PATH_INFO', 'QUERY_STRING', 'REMOTE_ADDR',
-                    'REMOTE_PORT', 'SERVER_NAME', 'SERVER_PORT'):
+                    'REMOTE_PORT', 'SERVER_NAME', 'SERVER_PORT', 'REQUEST_METHOD'):
             environ[key] = getattr(self, '_get_%s' % key.lower())()
         environ.update(self._get_wsgi_io_dict())
         self.environ = environ
         return environ
+
+    def _get_request_method(self):
+        if self.request_parameters:
+            return 'POST'
+        else:
+            return 'GET'
 
     def _get_request_uri(self):
         return self.request_parameters.get('url')
@@ -57,8 +62,11 @@ class Environ(object):
         stream = StringIO()
         stream.write(post_body)
         stream.seek(0)
-        return {'wsgi.input': stream, 'wsgi.errors': StringIO(),
-                'wsgi.version': (1, 0)}
+        return {
+            'wsgi.input': stream,
+            'wsgi.errors': StringIO(),
+            'wsgi.version': (1, 0)
+        }
 
 
 class WSGIHandler(object):
