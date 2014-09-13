@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import traceback
 import bson
 import ssl
 import threading
@@ -43,7 +44,7 @@ class WSGITRequestHandler(BaseRequestHandler):
             try:
                 obj = self.conn.recvobj()
             except Exception:
-                logger.debug('Bad Request. Not bson protocol.')
+                traceback.format_exc()
             if obj is None:
                 break
             environ = self._get_environ(obj)
