@@ -64,7 +64,7 @@ class TestWSGIHandler(unittest.TestCase):
 
 
 class MockServer(object):
-    _use_ssl = False
+    _keyfile = None
     connected_handlers = []
 
     @staticmethod
@@ -75,6 +75,9 @@ class MockServer(object):
 class MockRequest(object):
     def __init__(self, request_bytes):
         self.request_bytes = request_bytes
+
+    def getsockname(self):
+        return '127.0.0.1'
 
     def recvobj(self):
         self.recvobj = lambda: None
