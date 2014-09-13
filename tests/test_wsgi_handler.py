@@ -1,8 +1,12 @@
-import unittest
+import random
 import bson
+import unittest
+from socket import socket, SOCK_STREAM, AF_INET
+from wsgit.server import Server
 from wsgit.wsgi import WSGIHandler, Environ
 from tests.applications import various_status_application,\
     no_json_response_application
+from tests.applications import various_status_application as app
 
 
 class TestWSGIHandler(unittest.TestCase):
@@ -54,3 +58,16 @@ class TestWSGIHandler(unittest.TestCase):
             ),
             bson.loads(bson_binary)
         )
+
+    def test_http_header(self):
+        bson.patch_socket()
+        port = random.randint(2000, 50000)
+        server, thread = Server.run_server(('127.0.0.1', port), app)
+        conn = socket(AF_INET, SOCK_STREAM)
+        conn.connect(('127.0.0.1', port))
+        conn.sendobj({'url': '/', '__headers__': dict(USER_AGENT='iPhone')})
+        self.assertEqual(
+            server.connected_handlers[0].meta['HTTP_USER_AGENT'],
+            'iPhone'
+        )
+        server.shutdown()
