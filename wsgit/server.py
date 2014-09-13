@@ -25,6 +25,7 @@ class Server(ThreadingMixIn, TCPServer):
 
 
 class WSGITRequestHandler(BaseRequestHandler):
+    meta = dict()
 
     def setup(self):
         if self.server._use_ssl:
@@ -35,6 +36,7 @@ class WSGITRequestHandler(BaseRequestHandler):
                                            ssl_version=ssl.PROTOCOL_TLSv1)
         self.conn = self.request
         self.server.connected_handlers.append(self)
+        self.meta = dict()
 
     def handle(self):
         while True:
@@ -50,13 +52,15 @@ class WSGITRequestHandler(BaseRequestHandler):
                                                 environ.get_dict())
             self.conn.send(obj)
 
-    def _get_environ(self, obj):
-        meta = (dict(server_name=self.conn.getsockname()[0],
-                     server_port=self.conn.getsockname()[1],
-                     remote_addr=self.client_address[0],
-                     remote_port=self.client_address[1]))
-        parameters = obj
-        return Environ(dict(meta=meta, parameters=parameters))
+    def _get_environ(self, parameters):
+        if '__headers__' in parameters and \
+                isinstance(parameters['__headers__'], dict):
+            headers = dict(
+                ('HTTP_'+key.upper(), value)
+                for key, value in parameters.pop('__headers__').items()
+            )
+            self.meta.update(headers)
+        return Environ(dict(meta=self.meta, parameters=parameters))
 
     def finish(self):
         self.conn.close()
