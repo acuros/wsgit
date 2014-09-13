@@ -1,5 +1,6 @@
 import bson
 import os
+import random
 import ssl
 import unittest
 from wsgit.server import Server
@@ -11,9 +12,10 @@ class TestServer(unittest.TestCase):
 
     def test_server(self):
         bson.patch_socket()
-        server, thread = Server.run_server(('127.0.0.1', 9338), app)
+        port = random.randint(2000, 50000)
+        server, thread = Server.run_server(('127.0.0.1', port), app)
         conn = socket(AF_INET, SOCK_STREAM)
-        conn.connect(('127.0.0.1', 9338))
+        conn.connect(('127.0.0.1', port))
         conn.sendobj({'url': '/'})
         self.assertEqual(conn.recvobj(), dict(
             status=dict(reason='OK', code='200')))
