@@ -63,7 +63,7 @@ class WSGITRequestHandler(BaseRequestHandler):
         if '__headers__' in parameters and \
                 isinstance(parameters['__headers__'], dict):
             headers = dict(
-                ('HTTP_'+key.upper(), value)
+                ('HTTP_'+key.upper().replace('-', '_'), value)
                 for key, value in parameters.pop('__headers__').items()
             )
             self.meta.update(headers)
