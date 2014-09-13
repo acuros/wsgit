@@ -13,7 +13,7 @@ class TestEnviron(unittest.TestCase):
 
     def test_request_method(self):
         self.assertEqual(environ({})['REQUEST_METHOD'], 'GET')
-        self.assertEqual(environ(dict(parameter='exists'))['REQUEST_METHOD'], 'POST')
+        self.assertEqual(environ(dict(foo='bar'))['REQUEST_METHOD'], 'POST')
 
     def test_reqeust_uri(self):
         self.assertEqual(environ({})['REQUEST_URI'], None)
