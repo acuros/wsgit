@@ -6,6 +6,7 @@ import threading
 from SocketServer import ThreadingMixIn, TCPServer, BaseRequestHandler
 
 from wsgi import WSGIHandler, Environ
+from wsgit.request import AbstractRequest, InvalidRequest
 
 
 class Server(ThreadingMixIn, TCPServer):
@@ -28,6 +29,7 @@ class Server(ThreadingMixIn, TCPServer):
 
 class WSGITRequestHandler(BaseRequestHandler):
     meta = dict()
+    is_connected = True
 
     def setup(self):
         if self.server._keyfile:
@@ -46,28 +48,36 @@ class WSGITRequestHandler(BaseRequestHandler):
         )
 
     def handle(self):
-        while True:
-            try:
-                obj = self.conn.recvobj()
-            except Exception:
-                traceback.format_exc()
-            if obj is None:
-                break
-            environ = self._get_environ(obj)
-            wsgi_handler = WSGIHandler()
-            obj = wsgi_handler.call_application(self.server.app,
-                                                environ.get_dict())
-            self.conn.send(obj)
+        while self.is_connected:
+            request = self._get_request()
+            getattr(self, 'deal_with_' + request.type,
+                    'deal_with_unknown_request')(request)
 
-    def _get_environ(self, parameters):
-        if '__headers__' in parameters and \
-                isinstance(parameters['__headers__'], dict):
-            headers = dict(
-                ('HTTP_'+key.upper().replace('-', '_'), value)
-                for key, value in parameters.pop('__headers__').items()
-            )
-            self.meta.update(headers)
-        return Environ(dict(meta=self.meta, parameters=parameters))
+    def _get_request(self):
+        try:
+            request_dict = self.conn.recvobj()
+        except ValueError:
+            request_dict = dict()
+        return AbstractRequest.create(request_dict)
+
+    def deal_with_web_request(self, request):
+        environ = Environ(dict(meta=self.meta, parameters=request))
+        wsgi_handler = WSGIHandler()
+        obj = wsgi_handler.call_application(self.server.app,
+                                            environ.get_dict())
+        self.meta.update(request.headers)
+        self.conn.send(obj)
+
+    def deal_with_command_request(self, request):
+        raise NotImplementedError
+
+    def deal_with_invalid_request(self, request):
+        if isinstance(request, InvalidRequest):
+            self.is_connected = False
+
+    def deal_with_unknown_request(self, request):
+        raise NotImplementedError('Handling method for type %s is not '
+                                  'implemented' % type(request))
 
     def finish(self):
         self.conn.close()
