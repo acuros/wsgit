@@ -1,4 +1,4 @@
-class AbstractRequest(object):
+class AbstractRequest(dict):
     TYPE_DETERMINER = None
 
     def __init__(self, request_dict, meta=None):
@@ -12,6 +12,18 @@ class AbstractRequest(object):
             raise TypeError('meta must be dict not %s' % type(meta))
 
         self.request_dict = request_dict
+
+    @property
+    def type(self):
+        return self.__class__.__name__.replace('Request', '_request').lower()
+
+    @property
+    def headers(self):
+        return dict(
+            ('HTTP_'+key.upper().replace('-', '_'), value)
+            for key, value in self.request_dict.pop('__headers__',
+                                                    dict()).items()
+        )
 
     @classmethod
     def create(cls, request_dict):
@@ -37,4 +49,5 @@ class CommandRequest(AbstractRequest):
 
 
 class InvalidRequest(AbstractRequest):
-    pass
+    def __init__(self, request_dict, meta=None):
+        pass
