@@ -15,7 +15,7 @@ class Environ(object):
         if not isinstance(meta, dict):
             raise TypeError('meta must be an instance of dict')
 
-        self.request_parameters = request
+        self.request = request
         self.meta = meta.copy()
 
     def get_dict(self):
@@ -32,23 +32,21 @@ class Environ(object):
         return environ
 
     def _get_request_method(self):
-        params = self.request_parameters.copy()
-        params.pop('url')
-        if params:
+        if self.request.params:
             return 'POST'
         else:
             return 'GET'
 
     def _get_request_uri(self):
-        return self.request_parameters.get('url')
+        return self.request.url
 
     def _get_path_info(self):
-        url = self.request_parameters.get('url')
+        url = self.request.url
         if url is not None:
             return urlparse.urlparse(url).path
 
     def _get_query_string(self):
-        url = self.request_parameters.get('url')
+        url = self.request.url
         if url is not None:
             query = urlparse.urlparse(url).query
             return query
@@ -66,10 +64,7 @@ class Environ(object):
         return self.meta.get('server_port')
 
     def _get_wsgi_io_dict(self):
-        parameters = self.request_parameters.copy()
-        if 'url' in parameters:
-            del parameters['url']
-        post_body = urllib.urlencode(parameters)
+        post_body = urllib.urlencode(self.request.params)
         stream = StringIO()
         stream.write(post_body)
         stream.seek(0)

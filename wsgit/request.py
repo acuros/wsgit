@@ -1,4 +1,4 @@
-class AbstractRequest(dict):
+class AbstractRequest(object):
     TYPE_DETERMINER = None
 
     def __init__(self, request_dict):
@@ -8,18 +8,14 @@ class AbstractRequest(dict):
             )
 
         self.request_dict = request_dict
-        self.update(request_dict)
+        self.headers = dict(
+            ('HTTP_'+key.upper().replace('-', '_'), value)
+            for key, value in self.request_dict.pop('headers', dict()).items()
+        )
 
     @property
     def type(self):
         return self.__class__.__name__.replace('Request', '_request').lower()
-
-    @property
-    def headers(self):
-        return dict(
-            ('HTTP_'+key.upper().replace('-', '_'), value)
-            for key, value in self.request_dict.pop('headers', dict()).items()
-        )
 
     @classmethod
     def create(cls, request_dict):
@@ -41,6 +37,8 @@ class WebRequest(AbstractRequest):
 
     def __init__(self, request_dict):
         super(WebRequest, self).__init__(request_dict)
+        self.url = request_dict.pop('url')
+        self.params = request_dict.copy()
 
 
 class CommandRequest(AbstractRequest):
