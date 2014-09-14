@@ -3,7 +3,7 @@ import unittest
 from wsgit.request import WebRequest
 from wsgit.server import WSGITRequestHandler
 from wsgit.wsgi import WSGIHandler, Environ
-from tests.applications import various_status_application,\
+from applications import various_status_application,\
     no_json_response_application
 
 

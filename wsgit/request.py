@@ -48,6 +48,15 @@ class CommandRequest(AbstractRequest):
         super(CommandRequest, self).__init__(request_dict)
         self.command = self.url[1:]
 
+    def execute_command(self):
+        command = getattr(self, 'do_'+self.command, None)
+        if not command:
+            return dict(status=dict(code=400, reason='BadRequest'))
+        return command()
+
+    def do_hello(self):
+        return dict(status=dict(code=200, reason='OK'))
+
 
 class InvalidRequest(AbstractRequest):
     def __init__(self, request_dict):

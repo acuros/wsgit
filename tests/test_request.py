@@ -3,11 +3,6 @@ from wsgit.request import AbstractRequest, WebRequest, CommandRequest, InvalidRe
 
 
 class TestRequest(unittest.TestCase):
-    def test_command_request(self):
-        request = AbstractRequest.create(dict(url=':init'))
-        self.assertIsInstance(request, CommandRequest)
-        self.assertEqual(request.command, 'init')
-
     def test_web_request(self):
         request = AbstractRequest.create(dict(url='/', foo='bar'))
         self.assertIsInstance(request, WebRequest)
@@ -15,6 +10,18 @@ class TestRequest(unittest.TestCase):
         self.assertEqual(request.params, dict(foo='bar'))
 
     def test_invalid_request(self):
-        self.test_command_request()
         request = AbstractRequest.create(dict(url='\x00'))
         self.assertIsInstance(request, InvalidRequest)
+
+
+class TestCommandRequest(unittest.TestCase):
+    def test_create(self):
+        request = AbstractRequest.create(dict(url=':init'))
+        self.assertIsInstance(request, CommandRequest)
+        self.assertEqual(request.command, 'init')
+
+    def test_command_hello(self):
+        request = AbstractRequest.create(dict(url=':hello'))
+        self.assertEqual(request.execute_command(), dict(
+            status=dict(code=200, reason='OK')
+        ))

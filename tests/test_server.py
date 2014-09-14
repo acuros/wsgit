@@ -4,7 +4,7 @@ import random
 import ssl
 import unittest
 from wsgit.server import Server
-from tests.applications import various_status_application as app
+from applications import various_status_application as app
 from socket import socket, SOCK_STREAM, AF_INET
 
 
