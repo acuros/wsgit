@@ -3,11 +3,18 @@ import urllib
 from StringIO import StringIO
 import json
 import bson
+from wsgit.request import AbstractRequest, WebRequest
 
 
 class Environ(object):
 
     def __init__(self, request, meta):
+        if not isinstance(request, WebRequest):
+            raise TypeError('request must be an instance of WebRequest')
+
+        if not isinstance(meta, dict):
+            raise TypeError('meta must be an instance of dict')
+
         self.request_parameters = request
         self.meta = meta.copy()
 
