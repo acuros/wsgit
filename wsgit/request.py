@@ -1,15 +1,11 @@
 class AbstractRequest(dict):
     TYPE_DETERMINER = None
 
-    def __init__(self, request_dict, meta=None):
-        if meta is None:
-            meta = dict()
+    def __init__(self, request_dict):
         if not isinstance(request_dict, dict):
             raise TypeError(
                 'request_dict must be dict not %s' % type(request_dict)
             )
-        if not isinstance(meta, dict):
-            raise TypeError('meta must be dict not %s' % type(meta))
 
         self.request_dict = request_dict
 
@@ -48,5 +44,5 @@ class CommandRequest(AbstractRequest):
 
 
 class InvalidRequest(AbstractRequest):
-    def __init__(self, request_dict, meta=None):
+    def __init__(self, request_dict):
         pass
