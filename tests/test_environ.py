@@ -11,7 +11,7 @@ def environ(request_parameters, meta=None):
         request_parameters = dict()
     if not meta:
         meta = dict()
-    request = AbstractRequest.create(request_parameters)
+    request = AbstractRequest.create(object(), request_parameters)
     return Environ(request, meta).get_dict()
 
 

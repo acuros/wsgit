@@ -1,6 +1,6 @@
 import bson
 import unittest
-from wsgit.request import WebRequest
+from wsgit.request import AbstractRequest
 from wsgit.server import WSGITRequestHandler
 from wsgit.wsgi import WSGIHandler, Environ
 from applications import various_status_application,\
@@ -10,7 +10,7 @@ from applications import various_status_application,\
 class TestWSGIHandler(unittest.TestCase):
 
     def test_call_application(self):
-        request = WebRequest(dict(url='/'))
+        request = AbstractRequest.create(mock_handler, dict(url='/'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
         bson_binary = handler.call_application(
@@ -23,7 +23,7 @@ class TestWSGIHandler(unittest.TestCase):
         )
 
     def test_not_found_status(self):
-        request = WebRequest(dict(url='/?404 NOT FOUND'))
+        request = AbstractRequest.create(mock_handler, dict(url='/?404 NOT FOUND'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
         bson_binary = handler.call_application(
@@ -36,7 +36,7 @@ class TestWSGIHandler(unittest.TestCase):
         )
 
     def test_no_json_response(self):
-        request = WebRequest(dict(url='/?404 NOT FOUND'))
+        request = AbstractRequest.create(mock_handler, dict(url='/?404 NOT FOUND'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
         bson_binary = handler.call_application(
@@ -77,3 +77,6 @@ class MockRequest(object):
 
     def close(self):
         pass
+
+mock_handler = object()
+

@@ -58,7 +58,7 @@ class WSGITRequestHandler(BaseRequestHandler):
             request_dict = self.conn.recvobj()
         except ValueError:
             request_dict = dict()
-        return AbstractRequest.create(request_dict)
+        return AbstractRequest.create(self, request_dict)
 
     def deal_with_web_request(self, request):
         environ = Environ(request, self.meta)
