@@ -21,8 +21,7 @@ class AbstractRequest(dict):
     def headers(self):
         return dict(
             ('HTTP_'+key.upper().replace('-', '_'), value)
-            for key, value in self.request_dict.pop('__headers__',
-                                                    dict()).items()
+            for key, value in self.request_dict.pop('headers', dict()).items()
         )
 
     @classmethod

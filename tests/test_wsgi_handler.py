@@ -57,7 +57,7 @@ class TestWSGIHandler(unittest.TestCase):
         )
 
     def test_http_header(self):
-        request = {'url': '/', '__headers__': dict(USER_AGENT='iPhone')}
+        request = {'url': '/', 'headers': dict(USER_AGENT='iPhone')}
         request = MockRequest(bson.dumps(request))
         handler = WSGITRequestHandler(request, ('1.2.3.4', 12345), MockServer())
         self.assertEqual(handler.meta['HTTP_USER_AGENT'], 'iPhone')
