@@ -12,6 +12,8 @@ class AbstractRequest(object):
             ('HTTP_'+key.upper().replace('-', '_'), value)
             for key, value in self.request_dict.pop('headers', dict()).items()
         )
+        self.url = request_dict.pop('url')
+        self.params = request_dict.copy()
 
     @property
     def type(self):
@@ -37,8 +39,6 @@ class WebRequest(AbstractRequest):
 
     def __init__(self, request_dict):
         super(WebRequest, self).__init__(request_dict)
-        self.url = request_dict.pop('url')
-        self.params = request_dict.copy()
 
 
 class CommandRequest(AbstractRequest):
@@ -46,6 +46,7 @@ class CommandRequest(AbstractRequest):
 
     def __init__(self, request_dict):
         super(CommandRequest, self).__init__(request_dict)
+        self.command = self.url[1:]
 
 
 class InvalidRequest(AbstractRequest):
