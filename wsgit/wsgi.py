@@ -7,9 +7,9 @@ import bson
 
 class Environ(object):
 
-    def __init__(self, request_dict):
-        self.request_parameters = request_dict.get('parameters', {})
-        self.meta = request_dict.get('meta', {})
+    def __init__(self, request, meta):
+        self.request_parameters = request
+        self.meta = meta.copy()
 
     def get_dict(self):
         if hasattr(self, 'environ'):

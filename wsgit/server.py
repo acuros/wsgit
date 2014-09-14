@@ -61,7 +61,7 @@ class WSGITRequestHandler(BaseRequestHandler):
         return AbstractRequest.create(request_dict)
 
     def deal_with_web_request(self, request):
-        environ = Environ(dict(meta=self.meta, parameters=request))
+        environ = Environ(request, self.meta)
         wsgi_handler = WSGIHandler()
         obj = wsgi_handler.call_application(self.server.app,
                                             environ.get_dict())
