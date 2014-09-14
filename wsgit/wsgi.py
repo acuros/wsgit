@@ -12,11 +12,13 @@ class Environ(object):
         self.meta = meta.copy()
 
     def get_dict(self):
-        if hasattr(self, 'environ'):
-            return self.environ
+        if hasattr(self, '_environ'):
+            return self._environ
         environ = dict()
-        for key in ('REQUEST_URI', 'PATH_INFO', 'QUERY_STRING', 'REMOTE_ADDR',
-                    'REMOTE_PORT', 'SERVER_NAME', 'SERVER_PORT', 'REQUEST_METHOD'):
+        for key in (
+            'REQUEST_URI', 'PATH_INFO', 'QUERY_STRING', 'REMOTE_ADDR',
+            'REMOTE_PORT', 'SERVER_NAME', 'SERVER_PORT', 'REQUEST_METHOD'
+        ):
             environ[key] = getattr(self, '_get_%s' % key.lower())()
         environ.update(self._get_wsgi_io_dict())
         self.environ = environ
