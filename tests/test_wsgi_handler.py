@@ -1,5 +1,6 @@
 import bson
 import unittest
+from wsgit.request import WebRequest
 from wsgit.server import WSGITRequestHandler
 from wsgit.wsgi import WSGIHandler, Environ
 from tests.applications import various_status_application,\
@@ -9,11 +10,9 @@ from tests.applications import various_status_application,\
 class TestWSGIHandler(unittest.TestCase):
 
     def test_call_application(self):
-        request = dict(
-            meta=dict(ip='127.0.0.1', port=19234),
-            parameters=dict(url='/')
-        )
-        environ, handler = Environ(request), WSGIHandler()
+        request = WebRequest(dict(url='/'))
+        meta = dict(ip='127.0.0.1', port=19234)
+        environ, handler = Environ(request, meta), WSGIHandler()
         bson_binary = handler.call_application(
             various_status_application,
             environ.get_dict()
@@ -24,11 +23,9 @@ class TestWSGIHandler(unittest.TestCase):
         )
 
     def test_not_found_status(self):
-        request = dict(
-            meta=dict(ip='127.0.0.1', port=19234),
-            parameters=dict(url='/?404 NOT FOUND')
-        )
-        environ, handler = Environ(request), WSGIHandler()
+        request = WebRequest(dict(url='/?404 NOT FOUND'))
+        meta = dict(ip='127.0.0.1', port=19234)
+        environ, handler = Environ(request, meta), WSGIHandler()
         bson_binary = handler.call_application(
             various_status_application,
             environ.get_dict()
@@ -39,11 +36,9 @@ class TestWSGIHandler(unittest.TestCase):
         )
 
     def test_no_json_response(self):
-        request = dict(
-            meta=dict(ip='127.0.0.1', port=19234),
-            parameters=dict(url='/?404 NOT FOUND')
-        )
-        environ, handler = Environ(request), WSGIHandler()
+        request = WebRequest(dict(url='/?404 NOT FOUND'))
+        meta = dict(ip='127.0.0.1', port=19234)
+        environ, handler = Environ(request, meta), WSGIHandler()
         bson_binary = handler.call_application(
             no_json_response_application,
             environ.get_dict()

@@ -8,6 +8,7 @@ class AbstractRequest(dict):
             )
 
         self.request_dict = request_dict
+        self.update(request_dict)
 
     @property
     def type(self):

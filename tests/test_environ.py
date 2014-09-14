@@ -2,21 +2,27 @@
 '''Tests for Environ object'''
 
 import unittest
+from wsgit.request import AbstractRequest
 from wsgit.wsgi import Environ
 
 
-def environ(request_parameters={}, meta={}):
-    return Environ({'parameters': request_parameters, 'meta': meta}).get_dict()
+def environ(request_parameters, meta=None):
+    if not request_parameters:
+        request_parameters = dict()
+    if not meta:
+        meta = dict()
+    request = AbstractRequest.create(request_parameters)
+    return Environ(request, meta).get_dict()
 
 
 class TestEnviron(unittest.TestCase):
 
     def test_request_method(self):
-        self.assertEqual(environ({})['REQUEST_METHOD'], 'GET')
-        self.assertEqual(environ(dict(foo='bar'))['REQUEST_METHOD'], 'POST')
+        self.assertEqual(environ({'url': '/'})['REQUEST_METHOD'], 'GET')
+        env = environ({'url': '/', 'foo': 'bar'})
+        self.assertEqual(env['REQUEST_METHOD'], 'POST')
 
     def test_reqeust_uri(self):
-        self.assertEqual(environ({})['REQUEST_URI'], None)
         self.assertEqual(environ({'url': '/'})['REQUEST_URI'], '/')
         self.assertEqual(environ({'url': '/foo/bar/'})['REQUEST_URI'],
                          '/foo/bar/')
@@ -24,13 +30,11 @@ class TestEnviron(unittest.TestCase):
                          '/foo/bar/?foo=bar')
 
     def test_path_info(self):
-        self.assertEqual(environ({}).get('PATH_INFO'), None)
         self.assertEqual(environ({'url': '/'})['PATH_INFO'], '/')
         self.assertEqual(environ({'url': '/foo/bar/?foo=bar'})['PATH_INFO'],
                          '/foo/bar/')
 
     def test_query_string(self):
-        self.assertEqual(environ({}).get('QUERY_STRING'), None)
         self.assertEqual(environ({'url': '/'}).get('QUERY_STRING'), '')
         self.assertEqual(environ({'url': '/foo/bar/?foo=bar'})['QUERY_STRING'],
                          'foo=bar')
@@ -39,24 +43,22 @@ class TestEnviron(unittest.TestCase):
             'foo=bar&foo2=bar2')
 
     def test_remote_addr(self):
-        self.assertEqual(Environ({}).get_dict().get('REMOTE_ADDR'), None)
-        self.assertEqual(environ(meta={'ip': '127.0.0.1'})['REMOTE_ADDR'],
-                         '127.0.0.1')
+        env = environ({'url': '/'}, meta={'ip': '127.0.0.1'})
+        self.assertEqual(env['REMOTE_ADDR'], '127.0.0.1')
 
     def test_remote_port(self):
-        self.assertEqual(Environ({}).get_dict().get('REMOTE_PORT'), None)
-        self.assertEqual(environ(meta={'port': 10295})['REMOTE_PORT'], 10295)
+        env = environ({'url': '/'}, meta={'port': 10295})
+        self.assertEqual(env['REMOTE_PORT'], 10295)
 
     def test_server_name(self):
-        self.assertEqual(Environ({}).get_dict().get('SERVER_NAME'), None)
-        self.assertEqual(
-            environ(meta={'server_name': '10.20.30.40'})['SERVER_NAME'],
-            '10.20.30.40')
+        env = environ({'url': '/'}, meta={'server_name': '10.20.30.40'})
+        self.assertEqual(env['SERVER_NAME'], '10.20.30.40')
 
     def test_server_port(self):
-        self.assertEqual(Environ({}).get_dict().get('SERVER_PORT'), None)
         self.assertEqual(
-            environ(meta={'server_port': 9338})['SERVER_PORT'], 9338)
+            environ({'url': '/'}, meta={'server_port': 9338})['SERVER_PORT'],
+            9338
+        )
 
     def test_post_data(self):
         request_dict = {'url': '/', 'user_id': '13671', 'article_id': '5312'}

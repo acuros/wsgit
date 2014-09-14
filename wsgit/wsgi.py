@@ -3,7 +3,7 @@ import urllib
 from StringIO import StringIO
 import json
 import bson
-from wsgit.request import AbstractRequest, WebRequest
+from wsgit.request import WebRequest
 
 
 class Environ(object):
@@ -32,7 +32,9 @@ class Environ(object):
         return environ
 
     def _get_request_method(self):
-        if self.request_parameters:
+        params = self.request_parameters.copy()
+        params.pop('url')
+        if params:
             return 'POST'
         else:
             return 'GET'
