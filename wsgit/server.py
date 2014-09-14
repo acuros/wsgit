@@ -65,7 +65,6 @@ class WSGITRequestHandler(BaseRequestHandler):
         wsgi_handler = WSGIHandler()
         obj = wsgi_handler.call_application(self.server.app,
                                             environ.get_dict())
-        self.meta.update(request.headers)
         self.conn.send(obj)
 
     def deal_with_command_request(self, request):
