@@ -38,9 +38,15 @@ class AbstractRequest(dict):
 class WebRequest(AbstractRequest):
     TYPE_DETERMINER = '/'
 
+    def __init__(self, request_dict):
+        super(WebRequest, self).__init__(request_dict)
+
 
 class CommandRequest(AbstractRequest):
     TYPE_DETERMINER = ':'
+
+    def __init__(self, request_dict):
+        super(CommandRequest, self).__init__(request_dict)
 
 
 class InvalidRequest(AbstractRequest):
