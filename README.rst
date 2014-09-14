@@ -48,6 +48,11 @@ Request Example:
 Changelog
 _________
 
+* 2014.09.14: **0.1.3**:
+
+    * Supports HTTP Request headers
+
+
 * 2013.10.05: **0.1.2**:
 
     * Command ``wsgit`` supports ssl options ``--keyfile`` and ``--certfile``
