@@ -17,7 +17,7 @@ class TestCommandRequest(unittest.TestCase):
     def test_command_hello(self):
         request = AbstractRequest.create(object(), dict(url=':hello'))
         self.assertEqual(request.execute_command(), dict(
-            status=dict(code=200, reason='OK')
+            status=dict(code='200', reason='OK')
         ))
 
 
