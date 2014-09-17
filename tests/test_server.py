@@ -67,3 +67,17 @@ class TestServer(unittest.TestCase):
             status=dict(reason='OK', code='200')))
         server.shutdown()
         destroy_keys()
+
+    def test_command(self):
+        bson.patch_socket()
+        port = random.randint(2000, 65535)
+        server, thread = Server.run_server(('127.0.0.1', port), app)
+        conn = socket(AF_INET, SOCK_STREAM)
+        conn.connect(('127.0.0.1', port))
+        conn.sendobj({'url': ':hello'})
+        self.assertEqual(
+            conn.recvobj(),
+            dict(status=dict(reason='OK', code='200'))
+        )
+        server.shutdown()
+
