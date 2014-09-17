@@ -52,11 +52,11 @@ class CommandRequest(AbstractRequest):
     def execute_command(self):
         command = getattr(self, 'do_'+self.command, None)
         if not command:
-            return dict(status=dict(code=400, reason='BadRequest'))
+            return dict(status=dict(code='400', reason='BadRequest'))
         return command()
 
     def do_hello(self):
-        return dict(status=dict(code=200, reason='OK'))
+        return dict(status=dict(code='200', reason='OK'))
 
 
 class InvalidRequest(AbstractRequest):

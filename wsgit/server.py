@@ -68,7 +68,8 @@ class WSGITRequestHandler(BaseRequestHandler):
         self.conn.send(obj)
 
     def deal_with_command_request(self, request):
-        raise NotImplementedError
+        response = request.execute_command()
+        self.conn.sendobj(response)
 
     def deal_with_invalid_request(self, request):
         if isinstance(request, InvalidRequest):
