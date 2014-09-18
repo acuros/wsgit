@@ -58,9 +58,14 @@ class WSGITRequestHandler(BaseRequestHandler):
             request_dict = self.conn.recvobj()
         except ValueError:
             request_dict = dict()
-        return AbstractRequest.create(self, request_dict)
+        request = AbstractRequest.create(self, request_dict)
+        return request
 
     def deal_with_web_request(self, request):
+        if not request.is_valid:
+            bad_request = dict(status=dict(code='400', reason='BadRequest'))
+            self.conn.sendobj(bad_request)
+            return
         environ = Environ(request, self.meta)
         wsgi_handler = WSGIHandler()
         obj = wsgi_handler.call_application(self.server.app,
@@ -68,7 +73,7 @@ class WSGITRequestHandler(BaseRequestHandler):
         self.conn.send(obj)
 
     def deal_with_command_request(self, request):
-        response = request.execute_command()
+        response = request.command()
         self.conn.sendobj(response)
 
     def deal_with_invalid_request(self, request):

@@ -40,6 +40,13 @@ class WebRequest(AbstractRequest):
 
     def __init__(self, handler, request_dict):
         super(WebRequest, self).__init__(handler, request_dict)
+        self.request_method = request_dict.pop('method', None)
+
+    @property
+    def is_valid(self):
+        if self.request_method is None:
+            return False
+        return True
 
 
 class CommandRequest(AbstractRequest):
@@ -47,18 +54,23 @@ class CommandRequest(AbstractRequest):
 
     def __init__(self, handler, request_dict):
         super(CommandRequest, self).__init__(handler, request_dict)
-        self.command = self.url[1:]
+        self.command = getattr(self, 'do_'+self.url[1:], None)
 
-    def execute_command(self):
-        command = getattr(self, 'do_'+self.command, None)
-        if not command:
-            return dict(status=dict(code='400', reason='BadRequest'))
-        return command()
+    @property
+    def is_valid(self):
+        if self.command is None:
+            return False
+        return True
 
     def do_hello(self):
         return dict(status=dict(code='200', reason='OK'))
 
 
 class InvalidRequest(AbstractRequest):
+
     def __init__(self, handler, request_dict):
         pass
+
+    @property
+    def is_valid(self):
+        return False

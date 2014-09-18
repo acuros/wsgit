@@ -12,13 +12,13 @@ class TestCommandRequest(unittest.TestCase):
     def test_create(self):
         request = AbstractRequest.create(object(), dict(url=':init'))
         self.assertIsInstance(request, CommandRequest)
-        self.assertEqual(request.command, 'init')
 
     def test_command_hello(self):
         request = AbstractRequest.create(object(), dict(url=':hello'))
-        self.assertEqual(request.execute_command(), dict(
-            status=dict(code='200', reason='OK')
-        ))
+        self.assertEqual(
+            request.command(),
+            dict(status=dict(code='200', reason='OK'))
+        )
 
 
 class TestWebRequest(unittest.TestCase):

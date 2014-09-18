@@ -16,9 +16,11 @@ class TestServer(unittest.TestCase):
         server, thread = Server.run_server(('127.0.0.1', port), app)
         conn = socket(AF_INET, SOCK_STREAM)
         conn.connect(('127.0.0.1', port))
-        conn.sendobj({'url': '/'})
-        self.assertEqual(conn.recvobj(), dict(
-            status=dict(reason='OK', code='200')))
+        conn.sendobj({'url': '/', 'method': 'GET'})
+        self.assertEqual(
+            conn.recvobj(),
+            dict(status=dict(reason='OK', code='200'))
+        )
         server.shutdown()
 
     def test_ssl(self):
@@ -62,9 +64,11 @@ class TestServer(unittest.TestCase):
                                certfile='ssl.crt',
                                ssl_version=ssl.PROTOCOL_TLSv1)
         conn.connect(('127.0.0.1', port))
-        conn.sendobj({'url': '/'})
-        self.assertEqual(conn.recvobj(), dict(
-            status=dict(reason='OK', code='200')))
+        conn.sendobj({'url': '/', 'method': 'GET'})
+        self.assertEqual(
+            conn.recvobj(),
+            dict(status=dict(reason='OK', code='200'))
+        )
         server.shutdown()
         destroy_keys()
 
