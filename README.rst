@@ -39,7 +39,7 @@ Request Example:
     >>> bson.patch_socket()
     >>> s = socket(AF_INET, SOCK_STREAM)
     >>> s.connect(('127.0.0.1', 9338))
-    >>> s.sendobj({'url':'/'})
+    >>> s.sendobj({'url':'/', 'method': 'GET'})
     >>> print s.recvobj()
     >>> {u'status': {u'reason': 'OK', u'code': '200'}, u'page': u'index'}
     >>> s.close()
