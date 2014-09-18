@@ -1,45 +1,62 @@
 #!/usr/bin/python
-import traceback
-import bson
-import ssl
-import threading
-from SocketServer import ThreadingMixIn, TCPServer, BaseRequestHandler
+from gevent import monkey
+monkey.patch_all()
 
+
+def patch_bson_socket():
+    from gevent.socket import socket
+    from bson import network
+    socket.recvbytes = network._recvbytes
+    socket.recvobj = network._recvobj
+    socket.sendobj = network._sendobj
+patch_bson_socket()
+
+from gevent.server import StreamServer
 from wsgi import WSGIHandler, Environ
 from wsgit.request import AbstractRequest, InvalidRequest
 
 
-class Server(ThreadingMixIn, TCPServer):
-
-    def __init__(self, addr, handler, app, keyfile=None, certfile=None):
+class Server(StreamServer):
+    def __init__(self, listener, app, keyfile=None, certfile=None):
         self.app = app
         self.connected_handlers = []
-        self._keyfile = keyfile
-        self._certfile = certfile
-        TCPServer.__init__(self, addr, handler)
+        self.keyfile = keyfile
+        self.certfile = certfile
 
-    @classmethod
-    def run_server(cls, addr, app, keyfile=None, certfile=None):
-        bson.patch_socket()
-        server = cls(addr, WSGITRequestHandler, app, keyfile, certfile)
+        if keyfile and certfile:
+            StreamServer.__init__(
+                self,
+                listener,
+                self.handle,
+                keyfile=keyfile,
+                certfile=certfile
+            )
+        else:
+            StreamServer.__init__(self, listener, self.handle)
+
+    def handle(self, sock, addr):
+        handler = WSGITRequestHandler(self, sock, addr)
+        handler.handle()
+        handler.finish()
+
+    @staticmethod
+    def run_server(*args, **kwargs):
+        import threading
+        server = Server(*args, **kwargs)
         thread = threading.Thread(target=server.serve_forever)
         thread.start()
-        return server, thread
+        return server
 
 
-class WSGITRequestHandler(BaseRequestHandler):
+class WSGITRequestHandler(object):
     meta = dict()
     is_connected = True
 
-    def setup(self):
-        if self.server._keyfile:
-            self.request = ssl.wrap_socket(self.request,
-                                           keyfile=self.server._keyfile,
-                                           certfile=self.server._certfile,
-                                           server_side=True,
-                                           ssl_version=ssl.PROTOCOL_TLSv1)
-        self.conn = self.request
+    def __init__(self, server, conn, client_address):
+        self.server = server
         self.server.connected_handlers.append(self)
+        self.conn = conn
+        self.client_address = client_address
         self.meta = dict(
             server_name=self.conn.getsockname()[0],
             server_port=self.conn.getsockname()[1],
@@ -90,8 +107,8 @@ class WSGITRequestHandler(BaseRequestHandler):
 
 def run():
     import argparse
-    import sys
     import os
+    import sys
     import time
     parser = argparse.ArgumentParser()
     parser.add_argument('addr', metavar='ADDR',
@@ -111,17 +128,13 @@ def run():
             raise argparse.ArgumentError('--keyfile', '--keyfile omitted')
         if not args.certfile:
             raise argparse.ArgumentError('--certfile', '--certfile omitted')
-
     try:
-        server, thread = Server.run_server((ip, int(port)),
-                                           getattr(module, name),
-                                           args.keyfile,
-                                           args.certfile
-                                           )
+        app = getattr(module, name)
+        server = Server.run_server((ip, int(port)), app)
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        server.shutdown()
+        server.stop()
 
 if __name__ == '__main__':
     run()

@@ -13,7 +13,7 @@ class TestServer(unittest.TestCase):
     def test_server(self):
         bson.patch_socket()
         port = random.randint(2000, 65535)
-        server, thread = Server.run_server(('127.0.0.1', port), app)
+        server = Server.run_server(('127.0.0.1', port), app)
         conn = socket(AF_INET, SOCK_STREAM)
         conn.connect(('127.0.0.1', port))
         conn.sendobj({'url': '/', 'method': 'GET'})
@@ -21,7 +21,7 @@ class TestServer(unittest.TestCase):
             conn.recvobj(),
             dict(status=dict(reason='OK', code='200'))
         )
-        server.shutdown()
+        server.stop()
 
     def test_ssl(self):
         def make_keys():
@@ -54,10 +54,12 @@ class TestServer(unittest.TestCase):
         make_keys()
         bson.patch_socket()
         port = random.randint(2000, 65535)
-        server, thread = Server.run_server(('127.0.0.1', port), app,
-                                           keyfile='ssl.key',
-                                           certfile='ssl.crt'
-                                           )
+        server = Server.run_server(
+            ('127.0.0.1', port),
+            app,
+            keyfile='ssl.key',
+            certfile='ssl.crt'
+        )
         conn = socket(AF_INET, SOCK_STREAM)
         conn = ssl.wrap_socket(conn,
                                keyfile='ssl.key',
@@ -69,13 +71,13 @@ class TestServer(unittest.TestCase):
             conn.recvobj(),
             dict(status=dict(reason='OK', code='200'))
         )
-        server.shutdown()
+        server.stop()
         destroy_keys()
 
     def test_command(self):
         bson.patch_socket()
         port = random.randint(2000, 65535)
-        server, thread = Server.run_server(('127.0.0.1', port), app)
+        server = Server.run_server(('127.0.0.1', port), app)
         conn = socket(AF_INET, SOCK_STREAM)
         conn.connect(('127.0.0.1', port))
         conn.sendobj({'url': ':hello'})
@@ -83,5 +85,5 @@ class TestServer(unittest.TestCase):
             conn.recvobj(),
             dict(status=dict(reason='OK', code='200'))
         )
-        server.shutdown()
+        server.stop()
 
