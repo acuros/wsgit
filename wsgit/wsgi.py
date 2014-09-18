@@ -28,6 +28,7 @@ class Environ(object):
         ):
             environ[key] = getattr(self, '_get_%s' % key.lower())()
         environ.update(self._get_wsgi_io_dict())
+        environ.update(self.request.headers)
         self.environ = environ
         return environ
 

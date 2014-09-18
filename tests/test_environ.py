@@ -68,3 +68,8 @@ class TestEnviron(unittest.TestCase):
         parsed_post = parse_qs(env_dict['wsgi.input'].read())
         self.assertEqual(parsed_post,
                          {'article_id': ['5312'], 'user_id': ['13671']})
+
+    def test_http_headers(self):
+        request_dict = {'url': '/', 'headers': {'Accept': 'application/json'}}
+        env_dict = environ(request_dict)
+        self.assertEquals(env_dict['HTTP_ACCEPT'], 'application/json')
