@@ -19,7 +19,6 @@ from wsgit.request import AbstractRequest, InvalidRequest
 class Server(StreamServer):
     def __init__(self, listener, app, keyfile=None, certfile=None):
         self.app = app
-        self.connected_handlers = []
         self.keyfile = keyfile
         self.certfile = certfile
 
@@ -54,7 +53,6 @@ class WSGITRequestHandler(object):
 
     def __init__(self, server, conn, client_address):
         self.server = server
-        self.server.connected_handlers.append(self)
         self.conn = conn
         self.client_address = client_address
         self.meta = dict(
