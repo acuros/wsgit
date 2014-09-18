@@ -33,10 +33,7 @@ class Environ(object):
         return environ
 
     def _get_request_method(self):
-        if self.request.params:
-            return 'POST'
-        else:
-            return 'GET'
+        return self.request.request_method
 
     def _get_request_uri(self):
         return self.request.url

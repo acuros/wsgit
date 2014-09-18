@@ -18,7 +18,8 @@ def environ(request_parameters, meta=None):
 class TestEnviron(unittest.TestCase):
 
     def test_request_method(self):
-        self.assertEqual(environ({'url': '/'})['REQUEST_METHOD'], 'GET')
+        request_dict = {'url': '/', 'method': 'GET'}
+        self.assertEqual(environ(request_dict)['REQUEST_METHOD'], 'GET')
         env = environ({'url': '/', 'foo': 'bar'})
         self.assertEqual(env['REQUEST_METHOD'], 'POST')
 

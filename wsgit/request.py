@@ -40,11 +40,11 @@ class WebRequest(AbstractRequest):
 
     def __init__(self, handler, request_dict):
         super(WebRequest, self).__init__(handler, request_dict)
-        self.request_method = request_dict.pop('method', None)
+        self.request_method = request_dict.pop('method', '').upper()
 
     @property
     def is_valid(self):
-        if self.request_method is None:
+        if not self.request_method:
             return False
         return True
 
