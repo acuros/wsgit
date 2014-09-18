@@ -47,6 +47,11 @@ Request Example:
 
 Changelog
 _________
+* 2014.09.18: **0.2.1**:
+
+    * Under gevent
+    * You must put "method" parameter to choose method
+    * CommandRequest added, some features will be implemented
 
 * 2014.09.14: **0.1.3**:
 
