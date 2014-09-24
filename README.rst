@@ -47,6 +47,10 @@ Request Example:
 
 Changelog
 _________
+* 2014.09.24: **0.2.2**:
+
+    * REMOTE_ADDR bug fixed
+
 * 2014.09.18: **0.2.1**:
 
     * Under gevent
