@@ -50,10 +50,10 @@ class Environ(object):
             return query
 
     def _get_remote_addr(self):
-        return self.meta.get('ip')
+        return self.meta.get('remote_addr')
 
     def _get_remote_port(self):
-        return self.meta.get('port')
+        return self.meta.get('remote_port')
 
     def _get_server_name(self):
         return self.meta.get('server_name')

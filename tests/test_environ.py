@@ -44,11 +44,11 @@ class TestEnviron(unittest.TestCase):
             'foo=bar&foo2=bar2')
 
     def test_remote_addr(self):
-        env = environ({'url': '/'}, meta={'ip': '127.0.0.1'})
+        env = environ({'url': '/'}, meta={'remote_addr': '127.0.0.1'})
         self.assertEqual(env['REMOTE_ADDR'], '127.0.0.1')
 
     def test_remote_port(self):
-        env = environ({'url': '/'}, meta={'port': 10295})
+        env = environ({'url': '/'}, meta={'remote_port': 10295})
         self.assertEqual(env['REMOTE_PORT'], 10295)
 
     def test_server_name(self):
