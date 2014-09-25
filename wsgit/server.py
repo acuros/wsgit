@@ -86,6 +86,7 @@ class WSGITRequestHandler(object):
         obj = wsgi_handler.call_application(self.server.app,
                                             environ.get_dict())
         obj['url'] = request.url
+        obj['method'] = request.request_method
         self.conn.sendobj(obj)
 
     def deal_with_command_request(self, request):

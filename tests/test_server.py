@@ -19,7 +19,10 @@ class TestServer(unittest.TestCase):
         conn.sendobj({'url': '/', 'method': 'GET'})
         self.assertEqual(
             conn.recvobj(),
-            dict(status=dict(reason='OK', code='200'), url='/', response=dict())
+            dict(status=dict(reason='OK', code='200'),
+                 url='/',
+                 response=dict(),
+                 method='GET')
         )
         server.stop()
 
@@ -69,7 +72,10 @@ class TestServer(unittest.TestCase):
         conn.sendobj({'url': '/', 'method': 'GET'})
         self.assertEqual(
             conn.recvobj(),
-            dict(status=dict(reason='OK', code='200'), url='/', response=dict())
+            dict(status=dict(reason='OK', code='200'),
+                 url='/',
+                 method='GET',
+                 response=dict())
         )
         server.stop()
         destroy_keys()
