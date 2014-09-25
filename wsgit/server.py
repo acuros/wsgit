@@ -65,8 +65,11 @@ class WSGITRequestHandler(object):
     def handle(self):
         while self.is_connected:
             request = self._get_request()
-            getattr(self, 'deal_with_' + request.type,
+            obj = getattr(self, 'deal_with_' + request.type,
                     'deal_with_unknown_request')(request)
+            if request.is_valid:
+                obj['url'] = request.url
+                self.conn.sendobj(obj)
 
     def _get_request(self):
         try:
@@ -78,20 +81,17 @@ class WSGITRequestHandler(object):
 
     def deal_with_web_request(self, request):
         if not request.is_valid:
-            bad_request = dict(status=dict(code='400', reason='BadRequest'))
-            self.conn.sendobj(bad_request)
-            return
+            return dict(status=dict(code='400', reason='BadRequest'))
         environ = Environ(request, self.meta)
         wsgi_handler = WSGIHandler()
         obj = wsgi_handler.call_application(self.server.app,
                                             environ.get_dict())
-        obj['url'] = request.url
         obj['method'] = request.request_method
-        self.conn.sendobj(obj)
+        return obj
 
     def deal_with_command_request(self, request):
         response = request.command()
-        self.conn.sendobj(response)
+        return response
 
     def deal_with_invalid_request(self, request):
         if isinstance(request, InvalidRequest):

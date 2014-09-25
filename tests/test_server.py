@@ -89,6 +89,6 @@ class TestServer(unittest.TestCase):
         conn.sendobj({'url': ':hello'})
         self.assertEqual(
             conn.recvobj(),
-            dict(status=dict(reason='OK', code='200'))
+            dict(status=dict(reason='OK', code='200'), url=':hello')
         )
         server.stop()
