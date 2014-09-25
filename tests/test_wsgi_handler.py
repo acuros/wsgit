@@ -13,42 +13,42 @@ class TestWSGIHandler(unittest.TestCase):
         request = AbstractRequest.create(mock_handler, dict(url='/'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
-        bson_binary = handler.call_application(
+        json_response = handler.call_application(
             various_status_application,
             environ.get_dict()
         )
         self.assertEqual(
-            dict(status=dict(reason='OK', code='200')),
-            bson.loads(bson_binary)
+            dict(status=dict(reason='OK', code='200'), response=dict()),
+            json_response
         )
 
     def test_not_found_status(self):
         request = AbstractRequest.create(mock_handler, dict(url='/?404 NOT FOUND'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
-        bson_binary = handler.call_application(
+        json_response = handler.call_application(
             various_status_application,
             environ.get_dict()
         )
         self.assertEqual(
-            dict(status=dict(reason='NOT FOUND', code='404')),
-            bson.loads(bson_binary)
+            dict(status=dict(reason='NOT FOUND', code='404'), response=dict()),
+            json_response
         )
 
     def test_no_json_response(self):
         request = AbstractRequest.create(mock_handler, dict(url='/?404 NOT FOUND'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
-        bson_binary = handler.call_application(
+        json_response = handler.call_application(
             no_json_response_application,
             environ.get_dict()
         )
         self.assertEqual(
             dict(
                 status=dict(reason='NOT FOUND', code='404'),
-                no_json_response='Page Not Found'
+                no_json_response='Page Not Found', response=dict()
             ),
-            bson.loads(bson_binary)
+            json_response
         )
 
 

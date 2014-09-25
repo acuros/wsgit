@@ -2,7 +2,6 @@ import urlparse
 import urllib
 from StringIO import StringIO
 import json
-import bson
 from wsgit.request import WebRequest
 
 
@@ -76,7 +75,7 @@ class Environ(object):
 class WSGIHandler(object):
 
     def __init__(self):
-        self.result = dict()
+        self.result = dict(response=dict())
 
     def _start_response(self, status, response_headers):
         code, reason = status.split(' ')[0], ' '.join(status.split(' ')[1:])
@@ -90,7 +89,7 @@ class WSGIHandler(object):
         finally:
             if hasattr(app_iter, 'close'):
                 app_iter.close()
-        return bson.dumps(self.result)
+        return self.result
 
     def _update_result(self, item):
         try:
@@ -99,4 +98,4 @@ class WSGIHandler(object):
             self.result['no_json_response'] = \
                 self.result.get('no_json_response', '') + item
         else:
-            self.result.update(response)
+            self.result['response'].update(response)
