@@ -69,6 +69,7 @@ class WSGITRequestHandler(object):
                     'deal_with_unknown_request')(request)
             if request.is_valid:
                 obj['url'] = request.url
+                print obj
                 self.conn.sendobj(obj)
 
     def _get_request(self):
