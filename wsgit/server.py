@@ -62,6 +62,7 @@ class WSGITRequestHandler(object):
             remote_port=self.client_address[1]
         )
         self.headers = dict()
+        self.allow_headers = []
 
     def handle(self):
         while self.is_connected:
@@ -88,7 +89,12 @@ class WSGITRequestHandler(object):
         wsgi_handler = WSGIHandler()
         obj = wsgi_handler.call_application(self.server.app,
                                             environ.get_dict())
-        obj['headers'] = wsgi_handler.headers
+
+        obj['headers'] = dict(
+            (key, value)
+            for key, value in wsgi_handler.headers.iteritems()
+            if key.lower() in self.allow_headers
+        )
         obj['method'] = request.request_method
         return obj
 

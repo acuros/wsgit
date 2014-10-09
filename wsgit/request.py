@@ -51,7 +51,7 @@ class CommandRequest(AbstractRequest):
 
     def __init__(self, handler, request_dict):
         super(CommandRequest, self).__init__(handler, request_dict)
-        self.command = getattr(self, 'do_'+self.url[1:], None)
+        self.command = getattr(self, 'do_'+self.url[1:].replace('-', '_'), None)
 
     @property
     def is_valid(self):
@@ -62,8 +62,13 @@ class CommandRequest(AbstractRequest):
     def do_hello(self):
         return dict(status=dict(code='200', reason='OK'))
 
-    def do_header(self):
+    def do_set_headers(self):
         self.handler.headers.update(self.headers)
+        return dict(status=dict(code='200', reason='OK'))
+
+    def do_allow_headers(self):
+        names = [name.lower() for name in self.params['names']]
+        self.handler.allow_headers += names
         return dict(status=dict(code='200', reason='OK'))
 
 
