@@ -61,6 +61,7 @@ class WSGITRequestHandler(object):
             remote_addr=self.client_address[0],
             remote_port=self.client_address[1]
         )
+        self.headers = dict()
         self.cookies = []
 
     def handle(self):

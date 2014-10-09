@@ -31,4 +31,4 @@ class TestWebRequest(unittest.TestCase):
     def test_http_header(self):
         request = {'url': '/', 'headers': dict(USER_AGENT='iPhone')}
         request = AbstractRequest.create(object(), request)
-        self.assertEqual(request.headers['HTTP_USER_AGENT'], 'iPhone')
+        self.assertEqual(request.headers['USER_AGENT'], 'iPhone')

@@ -27,8 +27,8 @@ class Environ(object):
             'REMOTE_PORT', 'SERVER_NAME', 'SERVER_PORT', 'REQUEST_METHOD'
         ):
             environ[key] = getattr(self, '_get_%s' % key.lower())()
+        environ.update(self._headers_for_environ())
         environ.update(self._get_wsgi_io_dict())
-        environ.update(self.request.headers)
         self.environ = environ
         return environ
 
@@ -71,6 +71,12 @@ class Environ(object):
             'wsgi.errors': StringIO(),
             'wsgi.version': (1, 0)
         }
+
+    def _headers_for_environ(self):
+        return dict(
+            ('HTTP_'+key.upper().replace('-', '_'), value)
+            for key, value in self.request.headers.items()
+        )
 
 
 class WSGIHandler(object):

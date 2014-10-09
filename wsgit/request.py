@@ -9,10 +9,7 @@ class AbstractRequest(object):
 
         self.handler = handler
         self.request_dict = request_dict
-        self.headers = dict(
-            ('HTTP_'+key.upper().replace('-', '_'), value)
-            for key, value in self.request_dict.pop('headers', dict()).items()
-        )
+        self.headers = self.request_dict.pop('headers', dict())
         self.url = request_dict.pop('url')
         self.params = request_dict.copy()
 
@@ -63,6 +60,10 @@ class CommandRequest(AbstractRequest):
         return True
 
     def do_hello(self):
+        return dict(status=dict(code='200', reason='OK'))
+
+    def do_header(self):
+        self.handler.headers.update(self.headers)
         return dict(status=dict(code='200', reason='OK'))
 
 
