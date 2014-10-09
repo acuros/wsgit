@@ -1,9 +1,7 @@
 import unittest
-from wsgit.request import AbstractRequest, WebRequest, CommandRequest, InvalidRequest
-
-
-class MockHandler(object):
-    headers = dict()
+from mocks import MockHandler
+from wsgit.request import AbstractRequest, WebRequest, CommandRequest, \
+    InvalidRequest
 
 
 class TestRequest(unittest.TestCase):
@@ -22,6 +20,16 @@ class TestCommandRequest(unittest.TestCase):
         self.assertEqual(
             request.command(),
             dict(status=dict(code='200', reason='OK'))
+        )
+
+    def test_command_set_headers(self):
+        request = AbstractRequest.create(
+            MockHandler(),
+            dict(url=':set-headers', headers=dict(foo='bar'))
+        )
+        self.assertEqual(
+            request.command(),
+            dict(status=dict(code='200', reason='OK'), headers=dict(foo='bar'))
         )
 
 
