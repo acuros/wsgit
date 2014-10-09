@@ -17,8 +17,10 @@ class TestServer(unittest.TestCase):
         conn = socket(AF_INET, SOCK_STREAM)
         conn.connect(('127.0.0.1', port))
         conn.sendobj({'url': '/', 'method': 'GET'})
+        obj = conn.recvobj()
+        obj.pop('headers')
         self.assertEqual(
-            conn.recvobj(),
+            obj,
             dict(status=dict(reason='OK', code='200'),
                  url='/',
                  response=dict(),
@@ -70,8 +72,10 @@ class TestServer(unittest.TestCase):
                                ssl_version=ssl.PROTOCOL_TLSv1)
         conn.connect(('127.0.0.1', port))
         conn.sendobj({'url': '/', 'method': 'GET'})
+        obj = conn.recvobj()
+        obj.pop('headers')
         self.assertEqual(
-            conn.recvobj(),
+            obj,
             dict(status=dict(reason='OK', code='200'),
                  url='/',
                  method='GET',
