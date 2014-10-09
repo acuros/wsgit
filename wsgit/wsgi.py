@@ -83,10 +83,13 @@ class WSGIHandler(object):
 
     def __init__(self):
         self.result = dict(response=dict())
+        self.headers = dict()
 
     def _start_response(self, status, response_headers):
         code, reason = status.split(' ')[0], ' '.join(status.split(' ')[1:])
-        self.make_cookie(response_headers)
+        self.headers.update(dict(
+            (key, value.strip()) for key, value in response_headers
+        ))
         self.result['status'] = dict(code=code, reason=reason)
 
     def call_application(self, app, environ):
@@ -107,11 +110,3 @@ class WSGIHandler(object):
                 self.result.get('no_json_response', '') + item
         else:
             self.result['response'].update(response)
-
-    def make_cookie(self, headers):
-        raw_cookies = [value for key, value in headers if key.lower() == 'set-cookie']
-        cookies = []
-        for cookie in raw_cookies:
-            matched = re.match(r'(\w+)=(?:"(.*?)(?<!\")|(.*?));', cookie)
-            cookies.append(matched.group(0))
-        self.cookies = cookies

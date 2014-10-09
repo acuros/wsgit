@@ -62,7 +62,6 @@ class WSGITRequestHandler(object):
             remote_port=self.client_address[1]
         )
         self.headers = dict()
-        self.cookies = []
 
     def handle(self):
         while self.is_connected:
@@ -79,17 +78,8 @@ class WSGITRequestHandler(object):
             request_dict = self.conn.recvobj()
         except ValueError:
             request_dict = dict()
-        self._merge_cookies(request_dict)
         request = AbstractRequest.create(self, request_dict)
         return request
-
-    def _merge_cookies(self, request_dict):
-        if not 'headers' in request_dict:
-            return
-        headers = [key.upper() for key in request_dict.get('headers').keys()]
-        if 'COOKIE' not in headers:
-            request_dict['headers']['Cookie'] = ''
-        request_dict['headers']['Cookie'] += ' '.join(self.cookies)
 
     def deal_with_web_request(self, request):
         if not request.is_valid:
@@ -98,7 +88,7 @@ class WSGITRequestHandler(object):
         wsgi_handler = WSGIHandler()
         obj = wsgi_handler.call_application(self.server.app,
                                             environ.get_dict())
-        self.cookies = wsgi_handler.cookies
+        obj['headers'] = wsgi_handler.headers
         obj['method'] = request.request_method
         return obj
 
