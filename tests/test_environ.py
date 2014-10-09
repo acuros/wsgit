@@ -6,12 +6,16 @@ from wsgit.request import AbstractRequest
 from wsgit.wsgi import Environ
 
 
+class MockHandler(object):
+    headers = dict()
+
+
 def environ(request_parameters, meta=None):
     if not request_parameters:
         request_parameters = dict()
     if not meta:
         meta = dict()
-    request = AbstractRequest.create(object(), request_parameters)
+    request = AbstractRequest.create(MockHandler(), request_parameters)
     return Environ(request, meta).get_dict()
 
 

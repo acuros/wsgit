@@ -78,5 +78,9 @@ class MockRequest(object):
     def close(self):
         pass
 
-mock_handler = object()
+
+class MockHandler(object):
+    headers = dict()
+
+mock_handler = MockHandler()
 
