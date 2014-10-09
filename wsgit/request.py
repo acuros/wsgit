@@ -9,7 +9,8 @@ class AbstractRequest(object):
 
         self.handler = handler
         self.request_dict = request_dict
-        self.headers = self.request_dict.pop('headers', dict())
+        self.headers = self.handler.headers.copy()
+        self.headers.update(self.request_dict.pop('headers', dict()))
         self.url = request_dict.pop('url')
         self.params = request_dict.copy()
 
@@ -64,7 +65,10 @@ class CommandRequest(AbstractRequest):
 
     def do_set_headers(self):
         self.handler.headers.update(self.headers)
-        return dict(status=dict(code='200', reason='OK'))
+        return dict(
+            status=dict(code='200', reason='OK'),
+            headers=self.handler.headers
+        )
 
     def do_allow_headers(self):
         names = [name.lower() for name in self.params['names']]
