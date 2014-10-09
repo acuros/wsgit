@@ -81,9 +81,10 @@ class Environ(object):
 
 class WSGIHandler(object):
 
-    def __init__(self):
+    def __init__(self, request_handler):
         self.result = dict(response=dict())
         self.headers = dict()
+        self.request_handler = request_handler
 
     def _start_response(self, status, response_headers):
         code, reason = status.split(' ')[0], ' '.join(status.split(' ')[1:])
@@ -100,6 +101,11 @@ class WSGIHandler(object):
         finally:
             if hasattr(app_iter, 'close'):
                 app_iter.close()
+        self.result['headers'] = dict(
+            (key, value)
+            for key, value in self.headers.iteritems()
+            if key.lower() in self.request_handler.allow_headers
+        )
         return self.result
 
     def _update_result(self, item):

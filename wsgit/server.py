@@ -86,15 +86,9 @@ class WSGITRequestHandler(object):
         if not request.is_valid:
             return dict(status=dict(code='400', reason='BadRequest'))
         environ = Environ(request, self.meta)
-        wsgi_handler = WSGIHandler()
+        wsgi_handler = WSGIHandler(self)
         obj = wsgi_handler.call_application(self.server.app,
                                             environ.get_dict())
-
-        obj['headers'] = dict(
-            (key, value)
-            for key, value in wsgi_handler.headers.iteritems()
-            if key.lower() in self.allow_headers
-        )
         obj['method'] = request.request_method
         return obj
 
