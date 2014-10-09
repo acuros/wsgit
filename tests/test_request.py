@@ -1,7 +1,9 @@
 import unittest
 from mocks import MockHandler
+from applications import various_status_application
 from wsgit.request import AbstractRequest, WebRequest, CommandRequest, \
     InvalidRequest
+from wsgit.wsgi import Environ, WSGIHandler
 
 
 class TestRequest(unittest.TestCase):
@@ -31,6 +33,35 @@ class TestCommandRequest(unittest.TestCase):
             request.command(),
             dict(status=dict(code='200', reason='OK'), headers=dict(foo='bar'))
         )
+
+    def test_command_allow_headers(self):
+        def get_application_response(request_handler):
+            request = AbstractRequest.create(request_handler, dict(url='/'))
+            meta = dict(ip='127.0.0.1', port=19234)
+            environ = Environ(request, meta)
+            wsgi_handler = WSGIHandler(request_handler)
+            return wsgi_handler.call_application(
+                various_status_application,
+                environ.get_dict()
+            )
+
+        request_handler = MockHandler()
+
+        headers = get_application_response(request_handler)['headers']
+        self.assertNotIn('Content-Type', headers)
+
+        request = AbstractRequest.create(
+            request_handler,
+            dict(url=':allow-headers', names=['content-type'])
+        )
+        self.assertEqual(
+            request.command(),
+            dict(status=dict(code='200', reason='OK'))
+        )
+        self.assertIn('content-type', request_handler.allow_headers)
+
+        headers = get_application_response(request_handler)['headers']
+        self.assertIn('Content-Type', headers)
 
 
 class TestWebRequest(unittest.TestCase):

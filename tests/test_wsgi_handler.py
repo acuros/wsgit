@@ -12,33 +12,41 @@ class TestWSGIHandler(unittest.TestCase):
     def test_call_application(self):
         request = AbstractRequest.create(MockHandler(), dict(url='/'))
         meta = dict(ip='127.0.0.1', port=19234)
-        environ, handler = Environ(request, meta), WSGIHandler()
+        environ, handler = Environ(request, meta), WSGIHandler(MockHandler())
         json_response = handler.call_application(
             various_status_application,
             environ.get_dict()
         )
         self.assertEqual(
-            dict(status=dict(reason='OK', code='200'), response=dict()),
+            dict(
+                status=dict(reason='OK', code='200'),
+                response=dict(),
+                headers=dict()
+            ),
             json_response
         )
 
     def test_not_found_status(self):
         request = AbstractRequest.create(MockHandler(), dict(url='/?404 NOT FOUND'))
         meta = dict(ip='127.0.0.1', port=19234)
-        environ, handler = Environ(request, meta), WSGIHandler()
+        environ, handler = Environ(request, meta), WSGIHandler(MockHandler())
         json_response = handler.call_application(
             various_status_application,
             environ.get_dict()
         )
         self.assertEqual(
-            dict(status=dict(reason='NOT FOUND', code='404'), response=dict()),
+            dict(
+                status=dict(reason='NOT FOUND', code='404'),
+                response=dict(),
+                headers=dict()
+            ),
             json_response
         )
 
     def test_no_json_response(self):
         request = AbstractRequest.create(MockHandler(), dict(url='/?404 NOT FOUND'))
         meta = dict(ip='127.0.0.1', port=19234)
-        environ, handler = Environ(request, meta), WSGIHandler()
+        environ, handler = Environ(request, meta), WSGIHandler(MockHandler())
         json_response = handler.call_application(
             no_json_response_application,
             environ.get_dict()
@@ -46,7 +54,8 @@ class TestWSGIHandler(unittest.TestCase):
         self.assertEqual(
             dict(
                 status=dict(reason='NOT FOUND', code='404'),
-                no_json_response='Page Not Found', response=dict()
+                no_json_response='Page Not Found', response=dict(),
+                headers=dict()
             ),
             json_response
         )
