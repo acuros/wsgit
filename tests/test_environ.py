@@ -2,12 +2,10 @@
 '''Tests for Environ object'''
 
 import unittest
+from mocks import MockHandler
+
 from wsgit.request import AbstractRequest
 from wsgit.wsgi import Environ
-
-
-class MockHandler(object):
-    headers = dict()
 
 
 def environ(request_parameters, meta=None):

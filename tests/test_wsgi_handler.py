@@ -1,7 +1,7 @@
 import bson
 import unittest
+from mocks import MockHandler
 from wsgit.request import AbstractRequest
-from wsgit.server import WSGITRequestHandler
 from wsgit.wsgi import WSGIHandler, Environ
 from applications import various_status_application,\
     no_json_response_application
@@ -10,7 +10,7 @@ from applications import various_status_application,\
 class TestWSGIHandler(unittest.TestCase):
 
     def test_call_application(self):
-        request = AbstractRequest.create(mock_handler, dict(url='/'))
+        request = AbstractRequest.create(MockHandler(), dict(url='/'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
         json_response = handler.call_application(
@@ -23,7 +23,7 @@ class TestWSGIHandler(unittest.TestCase):
         )
 
     def test_not_found_status(self):
-        request = AbstractRequest.create(mock_handler, dict(url='/?404 NOT FOUND'))
+        request = AbstractRequest.create(MockHandler(), dict(url='/?404 NOT FOUND'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
         json_response = handler.call_application(
@@ -36,7 +36,7 @@ class TestWSGIHandler(unittest.TestCase):
         )
 
     def test_no_json_response(self):
-        request = AbstractRequest.create(mock_handler, dict(url='/?404 NOT FOUND'))
+        request = AbstractRequest.create(MockHandler(), dict(url='/?404 NOT FOUND'))
         meta = dict(ip='127.0.0.1', port=19234)
         environ, handler = Environ(request, meta), WSGIHandler()
         json_response = handler.call_application(
@@ -50,37 +50,3 @@ class TestWSGIHandler(unittest.TestCase):
             ),
             json_response
         )
-
-
-class MockServer(object):
-    _keyfile = None
-    connected_handlers = []
-
-    @staticmethod
-    def app(*args):
-        yield '{}'
-
-
-class MockRequest(object):
-    def __init__(self, request_bytes):
-        self.request_bytes = request_bytes
-
-    def getsockname(self):
-        return '127.0.0.1'
-
-    def recvobj(self):
-        self.recvobj = lambda: None
-        return bson.loads(self.request_bytes)
-
-    def send(self, obj):
-        pass
-
-    def close(self):
-        pass
-
-
-class MockHandler(object):
-    headers = dict()
-
-mock_handler = MockHandler()
-
