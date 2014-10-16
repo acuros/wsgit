@@ -25,6 +25,7 @@ setup(name='WSGIT',
       test_suite='tests',
       install_requires=[
           'bson>=0.3.3',
+          'gevent'
       ],
       entry_points={
           'console_scripts': [

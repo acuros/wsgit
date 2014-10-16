@@ -4,7 +4,7 @@ import random
 import ssl
 import unittest
 from wsgit.server import Server
-from tests.applications import various_status_application as app
+from applications import various_status_application as app
 from socket import socket, SOCK_STREAM, AF_INET
 
 
@@ -13,13 +13,20 @@ class TestServer(unittest.TestCase):
     def test_server(self):
         bson.patch_socket()
         port = random.randint(2000, 65535)
-        server, thread = Server.run_server(('127.0.0.1', port), app)
+        server = Server.run_server(('127.0.0.1', port), app)
         conn = socket(AF_INET, SOCK_STREAM)
         conn.connect(('127.0.0.1', port))
-        conn.sendobj({'url': '/'})
-        self.assertEqual(conn.recvobj(), dict(
-            status=dict(reason='OK', code='200')))
-        server.shutdown()
+        conn.sendobj({'url': '/', 'method': 'GET'})
+        obj = conn.recvobj()
+        obj.pop('headers')
+        self.assertEqual(
+            obj,
+            dict(status=dict(reason='OK', code='200'),
+                 url='/',
+                 response=dict(),
+                 method='GET')
+        )
+        server.stop()
 
     def test_ssl(self):
         def make_keys():
@@ -52,18 +59,40 @@ class TestServer(unittest.TestCase):
         make_keys()
         bson.patch_socket()
         port = random.randint(2000, 65535)
-        server, thread = Server.run_server(('127.0.0.1', port), app,
-                                           keyfile='ssl.key',
-                                           certfile='ssl.crt'
-                                           )
+        server = Server.run_server(
+            ('127.0.0.1', port),
+            app,
+            keyfile='ssl.key',
+            certfile='ssl.crt'
+        )
         conn = socket(AF_INET, SOCK_STREAM)
         conn = ssl.wrap_socket(conn,
                                keyfile='ssl.key',
                                certfile='ssl.crt',
                                ssl_version=ssl.PROTOCOL_TLSv1)
         conn.connect(('127.0.0.1', port))
-        conn.sendobj({'url': '/'})
-        self.assertEqual(conn.recvobj(), dict(
-            status=dict(reason='OK', code='200')))
-        server.shutdown()
+        conn.sendobj({'url': '/', 'method': 'GET'})
+        obj = conn.recvobj()
+        obj.pop('headers')
+        self.assertEqual(
+            obj,
+            dict(status=dict(reason='OK', code='200'),
+                 url='/',
+                 method='GET',
+                 response=dict())
+        )
+        server.stop()
         destroy_keys()
+
+    def test_command(self):
+        bson.patch_socket()
+        port = random.randint(2000, 65535)
+        server = Server.run_server(('127.0.0.1', port), app)
+        conn = socket(AF_INET, SOCK_STREAM)
+        conn.connect(('127.0.0.1', port))
+        conn.sendobj({'url': ':hello'})
+        self.assertEqual(
+            conn.recvobj(),
+            dict(status=dict(reason='OK', code='200'), url=':hello')
+        )
+        server.stop()
