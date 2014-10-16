@@ -1,6 +1,10 @@
 Changelog
 _________
-* 2014.10.15: **0.3**:
+* 2014.10.17: **0.3.1**:
+
+    * Install requires gevent
+
+* 2014.10.15: **0.3.0**:
 
     * Send HTTP Signature - Url, Method
     * Command Request "allow-headers", "set-headers" added
